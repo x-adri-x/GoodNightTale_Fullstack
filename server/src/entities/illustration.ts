@@ -1,6 +1,7 @@
 import { validates } from '@server/utils/validation'
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -26,6 +27,12 @@ export class Illustration {
 
   @Column('text')
   url: string
+
+  @Column('text')
+  name: string
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date
 }
 
 export type IllustrationBare = Omit<Illustration, 'tale'>
@@ -35,15 +42,19 @@ export const illustrationSchema = validates<IllustrationBare>().with({
   taleId: z.number().positive(),
   prompt: z.string().trim(),
   url: z.string().trim(),
+  name: z.string(),
+  createdAt: z.date(),
 })
 
 export const illustrationInsertSchema = illustrationSchema.omit({
   id: true,
+  createdAt: true,
 })
 
 export const illustrationUpdateSchema = illustrationSchema.omit({
   taleId: true,
-  url: true,
+  name: true,
+  createdAt: true,
 })
 
 export type IllustrationInsert = z.infer<typeof illustrationInsertSchema>
