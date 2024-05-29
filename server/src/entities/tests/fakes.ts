@@ -39,5 +39,6 @@ export const fakeIllustration = <T extends Partial<Illustration>>(
   id: randomId(),
   prompt: 'A fake prompt.',
   url: random.string(),
+  name: random.string(),
   ...overrides,
 })
