@@ -39,7 +39,7 @@ export class Tale {
   isFavorite: boolean | null
 
   @OneToMany(() => Illustration, (illustration) => illustration.tale, {
-    cascade: ['insert'],
+    cascade: ['insert', 'update', 'remove'],
   })
   illustrations: Illustration[]
 }
