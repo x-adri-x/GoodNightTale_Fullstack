@@ -7,13 +7,15 @@ import { TRPCError } from '@trpc/server'
 export default taleIdOwnerProcedure
   .use(provideRepos({ Illustration }))
   .input(illustrationUpdateSchema)
-  .mutation(async ({ input: { id, prompt }, ctx: { repos } }) => {
+  .mutation(async ({ input: illustration, ctx: { repos } }) => {
     const { affected } = await repos.Illustration.update(
       {
-        id,
+        id: illustration.id,
       },
       {
-        prompt,
+        prompt: illustration.prompt,
+        url: illustration.url,
+        createdAt: new Date(),
       }
     )
 
@@ -25,7 +27,7 @@ export default taleIdOwnerProcedure
     }
 
     const illustrationUpdated = await repos.Illustration.findOneByOrFail({
-      id,
+      id: illustration.id,
     })
 
     return illustrationUpdated
