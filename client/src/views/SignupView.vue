@@ -3,7 +3,6 @@ import { signup } from '@/stores/user'
 import { ref } from 'vue'
 import PageForm from '@/components/PageForm.vue'
 import { FwbAlert, FwbButton, FwbInput } from 'flowbite-vue'
-import { DEFAULT_SERVER_ERROR } from '@/consts'
 import AlertError from '@/components/AlertError.vue'
 import useErrorMessage from '@/composables/useErrorMessage'
 

@@ -5,27 +5,21 @@ import { ref } from 'vue'
 
 const taleId = ref()
 const tale = ref()
-const name = ref('')
+const title = ref('')
 
-const url = 'https://i.etsystatic.com/41164611/r/il/6c98b9/5189679858/il_570xN.5189679858_6b19.jpg'
-const downloadImage = async (url: string) => {
-  const image = await trpc.illustration.download.query({ taleId: taleId.value, url })
-  name.value = image
-}
+// const updateTitle = async() => {
+
+// }
 
 const createTale = async () => {
   const createdTale = await trpc.tale.create.mutate({
-    title: 'My First Tale',
+    title: title.value,
     body: 'Once upon a time ...',
     keywords: ['foo', 'bar', 'baz'],
     isFavorite: false,
   })
   tale.value = createdTale
   taleId.value = createdTale.id
-}
-
-const deleteImage = async (name: string) => {
-  await trpc.illustration.remove.query({ taleId: taleId.value, name })
 }
 </script>
 
@@ -35,6 +29,19 @@ const deleteImage = async (name: string) => {
       <p>
         Demonstrates the creation of a tale record. Data is hardcoded for demonstration purposes.
       </p>
+      <div>
+        <label for="title" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Title of tale</label
+        >
+        <input
+          v-model="title"
+          type="text"
+          id="title"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+          placeholder="title"
+          required
+        />
+      </div>
       <!-- prettier-ignore -->
       <FwbButton
         color="default"
@@ -55,30 +62,6 @@ const deleteImage = async (name: string) => {
           Your provided keywords were {{ tale.keywords }}
         </p>
       </FwbCard>
-      <div class="mt-4">
-        <p>
-          Downloads an image to your folder. URL is hard coded. Delete image, deletes the same image
-          from your folder.
-        </p>
-        <FwbButton
-          color="default"
-          size="xl"
-          @click="downloadImage(url)"
-          class="mr-10 w-80"
-          :disabled="taleId === undefined ? true : false"
-        >
-          Download image
-        </FwbButton>
-        <FwbButton
-          color="default"
-          size="xl"
-          @click="deleteImage(name)"
-          class="w-80"
-          :disabled="name.length === 0 ? true : false"
-        >
-          Delete image
-        </FwbButton>
-      </div>
     </div>
   </div>
 </template>
