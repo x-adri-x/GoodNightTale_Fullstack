@@ -111,6 +111,8 @@ jobs:
 
       - name: Test client E2E
         run: npm run test:e2e -w=client
+        env:
+          TOKEN_KEY: ${{ vars.TOKEN_KEY }}
 
       # Playwright generates a report of the E2E tests. We will
       # upload that report as an artifact so that we can download
