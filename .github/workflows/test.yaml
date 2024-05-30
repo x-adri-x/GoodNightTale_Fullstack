@@ -90,8 +90,6 @@ jobs:
       # end code.
       - name: Build front end for E2E tests
         run: npm run build -w=client
-        env: 
-          TOKEN_KEY: ${{ vars.TOKEN_KEY }}
 
       # Just to make sure that our API server is up and running
       # before we start our E2E tests, we could use a health check.
