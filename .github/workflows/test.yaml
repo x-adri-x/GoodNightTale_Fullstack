@@ -101,6 +101,12 @@ jobs:
       # TODO: Use https://github.com/marketplace/actions/url-health-check
       # to check for http://localhost:3000/api/health to repond.
       # Make 5 attemps with 5 second delay between each attempt.
+      - name: API server health check
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://localhost:3000/api/health
+          max-attempts: 5
+          retry-delay: 5s
 
       - name: Test client E2E
         run: npm run test:e2e -w=client
