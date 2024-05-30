@@ -55,6 +55,7 @@ jobs:
         run: npm run test -w=server
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TOKEN_KEY: ${{ vars.TOKEN_KEY }}
 
       - name: Run client unit tests
         run: npm run test:unit -w=client
