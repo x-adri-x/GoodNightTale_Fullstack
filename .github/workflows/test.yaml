@@ -69,7 +69,7 @@ jobs:
       # makes it run in the background. While it is starting up,
       # we will continue with other steps.
       - name: Start server for E2E tests
-        run: npm run start -w=server &
+        run: npm run start:tsx -w=server &
         env:
           # Pass the same database credentials to our server environment variables,
           # just like we would if we had an .env file.
