@@ -79,6 +79,7 @@ jobs:
           DB_PASSWORD: turing
           DB_NAME: testdb
           DB_HOST: localhost
+          TOKEN_KEY: ${{ vars.TOKEN_KEY }}
 
           # port to start the server on
           PORT: 3000
@@ -89,6 +90,8 @@ jobs:
       # end code.
       - name: Build front end for E2E tests
         run: npm run build -w=client
+        env: 
+          TOKEN_KEY: ${{ vars.TOKEN_KEY }}
 
       # Just to make sure that our API server is up and running
       # before we start our E2E tests, we could use a health check.
@@ -96,12 +99,6 @@ jobs:
       # wait for it to respond with a non-failing status code.
       # Our server has a /api/health endpoint that returns a
       # non-failing status code (see server/src/app.ts).
-
-      # Instead of writing our own health check logic, we could use
-      # a GitHub Action that already does that for us.
-      # TODO: Use https://github.com/marketplace/actions/url-health-check
-      # to check for http://localhost:3000/api/health to repond.
-      # Make 5 attemps with 5 second delay between each attempt.
       - name: API server health check
         uses: jtalk/url-health-check-action@v4
         with:
