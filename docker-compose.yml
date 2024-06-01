@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.1-alpine
+    environment:
+      POSTGRES_USER: adrienn
+      POSTGRES_PASSWORD: adrenaline
+      POSTGRES_DB: goodnighttale
+    ports:
+      - '5432'
+    volumes:
+      - goodnighttale:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    env_file:
+      - ./server/.env
+    environment:
+      DB_HOST: postgres
+      DB_USER: adrienn
+      DB_PASSWORD: adrenaline
+      DB_NAME: goodnighttale
+      PORT: 3000
+    ports:
+      - '3000'
+    depends_on:
+      - postgres
+
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+      args:
+        VITE_API_ORIGIN: http://localhost:3001
+        VITE_API_PATH: /api/v1/trpc
+    environment:
+      API_PROXY_PASS: http://server:3000
+    ports:
+      - '3001:80'
+    depends_on:
+      - server
+
+volumes:
+  goodnighttale:
