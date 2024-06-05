@@ -26,7 +26,8 @@
     "pinia": "^2.1.7",
     "superjson": "^2.2.1",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vuetify": "^3.6.8"
   },
   "devDependencies": {
     "@mono/server": "^1.0.0",
