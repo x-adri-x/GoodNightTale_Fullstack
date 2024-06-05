@@ -5,6 +5,7 @@ import PageForm from '@/components/PageForm.vue'
 import { FwbAlert, FwbButton, FwbInput } from 'flowbite-vue'
 import AlertError from '@/components/AlertError.vue'
 import useErrorMessage from '@/composables/useErrorMessage'
+import ButtonPrimary from '@/components/ButtonPrimary.vue'
 
 const userForm = ref({
   email: '',
@@ -13,27 +14,6 @@ const userForm = ref({
 
 const hasSucceeded = ref(false)
 
-// Wrap our signup call in a try/catch block to catch any errors.
-// Set the error message if there is an error.
-// const errorMessage = ref('')
-// async function submitSignup() {
-//   try {
-//     await signup(userForm.value)
-
-//     // clear error
-//     errorMessage.value = ''
-
-//     // display success message
-//     hasSucceeded.value = true
-//   } catch (error) {
-//     // set error, which will be automatically displayed
-//     errorMessage.value = error instanceof Error ? error.message : DEFAULT_SERVER_ERROR
-//   }
-// }
-
-// Or, if we move the generic error handling to a separate composable
-// function, which creates an error message ref for us and handles
-// the try/catch block, we can simplify our submitSignup function to:
 const [submitSignup, errorMessage] = useErrorMessage(async () => {
   await signup(userForm.value)
 
@@ -42,7 +22,33 @@ const [submitSignup, errorMessage] = useErrorMessage(async () => {
 </script>
 
 <template>
-  <PageForm heading="Sign up for an account" formLabel="Signup" @submit="submitSignup">
+  <div class="main">
+    <div>
+      <h1>Sign up for an account</h1>
+      <v-form role="form" @submit="submitSignup">
+        <v-text-field
+          v-model="userForm.email"
+          theme="primary-darken-1"
+          label="email"
+          type="email"
+        ></v-text-field>
+        <v-text-field
+          v-model="userForm.password"
+          theme="primary-darken-1"
+          label="password"
+          type="password"
+        ></v-text-field>
+        <ButtonPrimary class="btn" type="submit" text="Sign up" />
+        <p>
+          Already a member?
+          {{ ' ' }}
+          <RouterLink :to="{ name: 'Login' }" class="bold">Log in</RouterLink>
+        </p>
+      </v-form>
+    </div>
+  </div>
+
+  <!-- <PageForm heading="Sign up for an account" formLabel="Signup" @submit="submitSignup">
     <template #default>
       <FwbInput label="Email" type="email" v-model="userForm.email" :required="true" />
 
@@ -84,5 +90,33 @@ const [submitSignup, errorMessage] = useErrorMessage(async () => {
         >
       </FwbAlert>
     </template>
-  </PageForm>
+  </PageForm> -->
 </template>
+<style scoped>
+.main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+  width: 100%;
+  justify-content: center;
+}
+
+h1 {
+  margin-bottom: 60px;
+}
+
+.btn {
+  width: 100%;
+  height: 50px;
+  margin-top: auto;
+  color: blanchedalmond;
+  margin-bottom: 20px;
+}
+
+.bold {
+  color: #ed9c98;
+  font-weight: 500;
+  text-decoration: none;
+}
+</style>
