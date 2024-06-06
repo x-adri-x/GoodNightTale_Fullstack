@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { FwbNavbar, FwbNavbarCollapse, FwbNavbarLink } from 'flowbite-vue'
 
 const { links } = defineProps<{
   links: {
@@ -18,31 +17,22 @@ const navigation = computed(() =>
     isActive: route.name === item.name,
   }))
 )
+const show = ref(false)
 </script>
 
 <template>
-  <FwbNavbar>
-    <template #default="{ isShowMenu }">
-      <FwbNavbar-collapse :isShowMenu="isShowMenu">
-        <!-- prettier-ignore -->
-        <FwbNavbarLink
-          v-for="link in navigation"
-          :key="link.name"
-          :is-active="link.isActive"
-          :link="({ name: link.name } as any)"
-          link-attr="to"
-          component="RouterLink"
-        >
-          {{ link.label }}
-        </FwbNavbarLink>
-        <slot name="menu" />
-      </FwbNavbar-collapse>
-    </template>
-  </FwbNavbar>
-
-  <main>
-    <div class="container mx-auto px-6 py-8">
+  <v-layout>
+    <v-app-bar>
+      <template v-slot:prepend>
+        <v-app-bar-nav-icon @click="show = !show"></v-app-bar-nav-icon>
+      </template>
+      <v-app-bar-title>Welcome ...</v-app-bar-title>
+    </v-app-bar>
+    <v-navigation-drawer v-model="show">
+      <v-list-item v-for="link in navigation" :key="link.name">{{ link.label }}</v-list-item>
+    </v-navigation-drawer>
+    <v-main>
       <RouterView />
-    </div>
-  </main>
+    </v-main>
+  </v-layout>
 </template>
