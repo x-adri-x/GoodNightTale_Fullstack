@@ -48,5 +48,5 @@ function getErrorMessage(error: unknown) {
     return error.message
   }
 
-  return error.data.message || error.message
+  return error?.data?.message || error?.message
 }
