@@ -14,7 +14,7 @@ export default authenticatedProcedure
 
     try {
       const completion = await generativeAI.chatCompletion(input)
-      return completion
+      return completion.choices[0].message.content
     } catch (error) {
       throw new Error(`Chat completion failed: ${error}`)
     }
