@@ -1,18 +1,24 @@
 <script lang="ts" setup>
 import { trpc } from '@/trpc'
 import { ref, type Ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { mdiCheckCircle } from '@mdi/js'
 import { getRandomWords, generateRandomWords } from '@/utils/helpers'
 import constants from '@/constants/constants'
-import { mdiCheckCircle } from '@mdi/js'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import useErrorMessage from '@/composables/useErrorMessage'
+import useTaleStore from '@/stores/tale'
+import usePromptStore from '@/stores/prompt'
 
 const randomWords = ref(getRandomWords())
 const keyword: Ref<string> = ref('')
 const keywords: Ref<string[]> = ref([])
 const showWarning = ref(false)
 const warning = ref('')
+const taleStore = useTaleStore()
+const promptStore = usePromptStore()
+const router = useRouter()
 
 const handleClick = () => {
   if (!keywords.value.includes(keyword.value)) {
@@ -41,18 +47,15 @@ const selectRandomWord = (word: string) => {
   }
 }
 const [generateTale, errorMessage] = useErrorMessage(async () => {
-  const stream = [
-    {
-      role: 'system',
-      content: constants.chatGPTPrompt,
-    },
-  ]
-  stream.push({
+  router.push('/tale')
+  promptStore.reset()
+  promptStore.updatePrompt({
     role: 'user',
     content: `The ${keywords.value.length} words are: ${keywords.value.slice(0).join(', ')}.`,
   })
-  const tale = await trpc.openai.chat.mutate(stream)
-  console.log(tale)
+
+  const tale = await trpc.openai.chat.mutate(promptStore.stream)
+  taleStore.tale = tale
 })
 </script>
 
