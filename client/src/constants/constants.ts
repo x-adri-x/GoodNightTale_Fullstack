@@ -20,19 +20,20 @@ const constants: Constants = {
   networkErrorTitle: 'Network request error.',
   networkErrorMessage:
     'Something went wrong when trying to generate your tale. Please check your connection and try again.',
-  imageRequestErrorMessage: 'Something went wrong when trying to generate images for your tale.',
+  illustrationRequestErrorMessage:
+    'Something went wrong when trying to generate images for your tale.',
   inputInfoMessage: 'Please add 5 keywords of your choice or choose from the provided list.',
   duplicateWordWarning: 'You already have that word selected.',
   maximumKeywordsReachedWarning: 'You can only use 5 keywords to generate your tale.',
   taleStorageKey: 'tale',
-  imagesStorageKey: 'illustration',
+  illustrationStorageKey: 'illustration',
   pagesStorageKey: 'pages',
   randomWordsStorageKey: 'random',
   createdAtStorageKey: 'createdAt',
   taleIsLoadingText: 'Your tale is being written.',
-  imageIsLoadingText: 'Illustrations are being painted.',
+  illustrationIsLoadingText: 'Illustrations are being painted.',
   dallEImageValidTime: '50',
-  imageIndexes: '1,3',
+  illustrationIndexes: '1,3',
 }
 
 export default constants
