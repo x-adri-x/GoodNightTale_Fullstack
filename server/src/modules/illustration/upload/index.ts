@@ -1,11 +1,13 @@
 import { TRPCError } from '@trpc/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { random } from '@tests/utils/random'
 import { z } from 'zod'
 import 'dotenv/config'
 import axios from 'axios'
 import { authenticatedProcedure } from '@server/trpc/authenticatedProcedure'
+import { Chance } from 'chance'
+import config from '@server/config'
 
+const random = config.isCi ? Chance(1) : Chance()
 const { env } = process
 
 export default authenticatedProcedure
