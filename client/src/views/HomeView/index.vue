@@ -3,7 +3,7 @@ import { trpc } from '@/trpc'
 import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { mdiCheckCircle } from '@mdi/js'
-import { getRandomWords, generateRandomWords } from '@/utils/helpers'
+import { generateRandomWords, getRandomWords } from './helpers'
 import constants from '@/constants/constants'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
@@ -46,6 +46,7 @@ const selectRandomWord = (word: string) => {
     showWarning.value = false
   }
 }
+
 const [generateTale, errorMessage] = useErrorMessage(async () => {
   router.push('/tale')
   promptStore.reset()
@@ -56,6 +57,7 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
 
   const tale = await trpc.openai.chat.mutate(promptStore.stream)
   taleStore.tale = tale
+  taleStore.generationInProgress = true
 })
 </script>
 

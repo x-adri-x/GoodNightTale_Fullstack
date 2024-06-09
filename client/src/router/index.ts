@@ -13,7 +13,19 @@ const router = createRouter({
         {
           path: '',
           name: 'Home',
-          component: () => import('../views/HomeView.vue'),
+          component: () => import('../views/HomeView/index.vue'),
+        },
+      ],
+    },
+    {
+      path: '/tale',
+      component: HomeLayout,
+      beforeEnter: [authenticate],
+      children: [
+        {
+          path: '',
+          name: 'Tale',
+          component: () => import('../views/TaleView/index.vue'),
         },
       ],
     },
