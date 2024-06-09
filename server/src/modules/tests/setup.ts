@@ -30,10 +30,17 @@ export default async function setupTest() {
     ])
 
   const openai = {
-    chatCompletion: vi.fn(),
+    chatCompletion: vi.fn().mockResolvedValue({
+      choices: [
+        {
+          message: {
+            content: 'Mocked response content',
+          },
+        },
+      ],
+    }),
     visualGeneration: vi.fn(),
   }
-
   return {
     db,
     openai,
