@@ -1,6 +1,7 @@
 import type { User } from '@server/entities/user'
 import type { Tale } from '@server/entities/tale'
 import type { Illustration } from '@server/entities/illustration'
+import type { Session } from '@server/entities/session'
 import { random } from '@tests/utils/random'
 
 const randomId = () => random.integer({ min: 1, max: 2147483647 })
@@ -23,7 +24,7 @@ export const fakeUser = <T extends Partial<User>>(overrides: T = {} as T) => ({
 export const fakeTale = <T extends Partial<Tale>>(overrides: T = {} as T) => ({
   id: randomId(),
   title: random.string(),
-  body: random.string(),
+  body: [random.string(), random.string()],
   keywords: ['foo', 'bar', 'baz'],
   isFavorite: false,
   ...overrides,
@@ -40,5 +41,21 @@ export const fakeIllustration = <T extends Partial<Illustration>>(
   prompt: 'A fake prompt.',
   url: random.string(),
   name: random.string(),
+  ...overrides,
+})
+
+/**
+ * Generates a fake session object with some default test data.
+ * @param overrides: Any properties that should be different from default fake data.
+ * @returns
+ */
+export const fakeSession = <T extends Partial<Session>>(
+  overrides: T = {} as T
+) => ({
+  id: randomId(),
+  title: random.string(),
+  body: [random.string(), random.string()],
+  keys: [random.string(), random.string()],
+  urls: [random.string(), random.string()],
   ...overrides,
 })
