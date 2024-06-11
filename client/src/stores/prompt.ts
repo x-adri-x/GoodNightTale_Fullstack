@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import constants from '@/constants/constants'
 
 const usePromptStore = defineStore('prompt', () => {
@@ -9,7 +9,7 @@ const usePromptStore = defineStore('prompt', () => {
       content: constants.chatGPTPrompt,
     },
   ])
-  const illustrationPrompts = ref()
+  const illustrationPrompts: Ref<string[] | undefined> = ref()
   const illustrationError = ref('')
 
   function reset() {

@@ -24,7 +24,7 @@ export default authenticatedProcedure
     })
 
     try {
-      const url = await getSignedUrl(s3, get, { expiresIn: 3600 })
+      const url = await getSignedUrl(s3, get, { expiresIn: 86400 })
       return url
     } catch (error) {
       if (!(error instanceof Error)) throw error

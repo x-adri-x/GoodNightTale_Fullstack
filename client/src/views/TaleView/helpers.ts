@@ -1,6 +1,7 @@
 import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
 import type { Session, SessionInsert } from '@mono/server/src/shared/entities'
+import type { Ref } from 'vue'
 
 export const createSessionObject = (text: string) => {
   const tmp = text
@@ -42,4 +43,20 @@ export const createPages = (tale: SessionInsert): string[] => {
   pages.push(...tmpBody)
   console.log('tale', tale)
   return pages
+}
+
+export const handleError = <Args extends any[]>(fn: Function, error: Ref) => {
+  return function (...args: Args) {
+    try {
+      return fn(...args)
+    } catch (err) {
+      if (!(err instanceof Error)) throw err
+      error.value = err.message
+    }
+  }
+}
+
+export const checkImageValidity = (createdAt: string) => {
+  const seconds = (new Date().getTime() - new Date(createdAt).getTime()) / 1000
+  return seconds < 86400
 }
