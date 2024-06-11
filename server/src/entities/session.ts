@@ -35,7 +35,13 @@ export class Session {
     type: 'text',
     array: true,
   })
-  illustrations: Array<String>
+  keys: Array<String>
+
+  @Column({
+    type: 'text',
+    array: true,
+  })
+  urls: Array<String>
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
@@ -53,7 +59,8 @@ export const sessionSchema = validates<SessionBare>().with({
     .min(2, 'Tale name must be at least 2 characters long')
     .max(100),
   body: z.array(z.string()),
-  illustrations: z.array(z.string()),
+  keys: z.array(z.string()),
+  urls: z.array(z.string()),
 })
 
 export const sessionInsertSchema = sessionSchema.omit({

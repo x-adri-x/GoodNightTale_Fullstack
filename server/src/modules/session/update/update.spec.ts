@@ -8,25 +8,27 @@ const createCaller = createCallerFactory(sessionRouter)
 it('updates the saved session tale', async () => {
   // ARRANGE
   const { db, user } = await setupTest()
-  const { create, update } = createCaller(authContext({ db }, user))
-  const tale = {
+  const { update, get } = createCaller(authContext({ db }, user))
+  const sessionTale = {
     title: 'My First Tale',
     body: ['Once upon a time ...'],
-    illustrations: ['https://foo.png', 'https://bar.png', 'https://baz.png'],
+    keys: ['foo', 'bar', 'baz'],
+    urls: ['https://foo.png', 'https://bar.png', 'https://baz.png'],
   }
-  console.log('user', user)
+
   // ACT
-  const savedTale = await create(tale)
-  console.log('saved', savedTale)
-  const updated = await update({
-    ...tale,
-    illustrations: [
-      'https://foo-1.png',
-      'https://bar-1.png',
-      'https://baz-1.png',
-    ],
-  })
+  const updated = await update(sessionTale)
+  const updatedSessionTale = await get()
 
   // ASSERT
   expect(updated.affected).toEqual(1)
+  expect(updatedSessionTale).toMatchObject({
+    id: expect.any(Number),
+    title: 'My First Tale',
+    body: ['Once upon a time ...'],
+    keys: ['foo', 'bar', 'baz'],
+    urls: ['https://foo.png', 'https://bar.png', 'https://baz.png'],
+    userId: user.id,
+    createdAt: expect.any(Date),
+  })
 })
