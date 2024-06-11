@@ -1,5 +1,6 @@
+import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
-import type { Session } from '@mono/server/src/shared/entities'
+import type { Session, SessionInsert } from '@mono/server/src/shared/entities'
 
 export const createSessionObject = (text: string) => {
   const tmp = text
@@ -28,4 +29,17 @@ export const generateIllustrations = (prompts: string[]) => {
 export const getGeneratedTale = async (): Promise<Session> => {
   const tale = await trpc.session.get.query()
   return tale
+}
+
+export const createPages = (tale: SessionInsert): string[] => {
+  const tmpBody = tale.body.slice()
+  const tmpUrls = tale.urls.slice()
+  const pages = []
+  pages.push(tale.title)
+  constants.illustrationIndexes.split(',').forEach((index, i) => {
+    tmpBody.splice(parseInt(index, 10), 0, tmpUrls[i]!)
+  })
+  pages.push(...tmpBody)
+  console.log('tale', tale)
+  return pages
 }
