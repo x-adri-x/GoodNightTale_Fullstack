@@ -4,15 +4,9 @@ import { parseTokenPayload } from '@server/modules/user/tokenPayload'
 import { publicProcedure } from '..'
 
 type VerifyToken = (token: string) => Jwt | JwtPayload | string
-// type GenerativeAI = (
-//   messages: ChatCompletionMessageArray
-// ) => Promise<OpenAI.Chat.ChatCompletion | undefined>
 
 // An example with dependency injection.
-export function buildAuthenticatedProcedure(
-  verify: VerifyToken
-  // ai: GenerativeAI
-) {
+export function buildAuthenticatedProcedure(verify: VerifyToken) {
   function getUserFromToken(token: string) {
     try {
       const tokenVerified = verify(token)
@@ -70,7 +64,6 @@ export function buildAuthenticatedProcedure(
     return next({
       ctx: {
         authUser,
-        // generativeAI: ai,
       },
     })
   })
