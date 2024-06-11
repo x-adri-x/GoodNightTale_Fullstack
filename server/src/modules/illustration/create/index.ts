@@ -1,14 +1,14 @@
-import { Illustration } from '@server/entities'
+import { Illustration, Tale } from '@server/entities'
 import { illustrationInsertSchema } from '@server/entities/illustration'
 import { TRPCError } from '@trpc/server'
 import provideRepos from '@server/trpc/provideRepos'
 import { taleIdOwnerProcedure } from '@server/trpc/taleIdOwnerProcedure'
 
 export default taleIdOwnerProcedure
-  .use(provideRepos({ Illustration }))
+  .use(provideRepos({ Illustration, Tale }))
   .input(illustrationInsertSchema)
   .mutation(async ({ input: illustration, ctx: { repos } }) => {
-    const tale = await repos.Illustration.findOneBy({
+    const tale = await repos.Tale.findOneBy({
       id: illustration.taleId,
     })
 
