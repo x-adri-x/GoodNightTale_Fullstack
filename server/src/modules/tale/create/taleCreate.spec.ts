@@ -13,18 +13,17 @@ it('creates a tale', async () => {
   // ACT
   const taleCreated = await create({
     title: 'My First Tale',
-    body: 'Once upon a time ...',
+    body: ['Once upon a time', 'There lived a boy'],
     keywords: ['foo', 'bar', 'baz'],
-    isFavorite: false,
   })
 
   // ASSERT
   expect(taleCreated).toMatchObject({
     id: expect.any(Number),
     title: 'My First Tale',
-    body: 'Once upon a time ...',
+    body: ['Once upon a time', 'There lived a boy'],
     keywords: ['foo', 'bar', 'baz'],
-    isFavorite: false,
+    isFavorite: null,
     userId: user.id,
   })
 })

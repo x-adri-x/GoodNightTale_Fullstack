@@ -57,6 +57,7 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
 
   const tale = await trpc.openai.chat.mutate(promptStore.stream)
   taleStore.tale = tale
+  taleStore.keywords = keywords.value
   taleStore.generationInProgress = true
 })
 </script>

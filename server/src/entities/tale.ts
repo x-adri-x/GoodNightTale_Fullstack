@@ -26,8 +26,11 @@ export class Tale {
   @Column('text')
   title: string
 
-  @Column('text')
-  body: string
+  @Column({
+    type: 'text',
+    array: true,
+  })
+  body: Array<String>
 
   @Column({
     type: 'text',
@@ -35,7 +38,10 @@ export class Tale {
   })
   keywords: Array<String>
 
-  @Column('bool')
+  @Column({
+    type: 'bool',
+    nullable: true,
+  })
   isFavorite: boolean | null
 
   @OneToMany(() => Illustration, (illustration) => illustration.tale, {
@@ -55,7 +61,7 @@ export const taleSchema = validates<TaleBare>().with({
     // with a friendly error message
     .min(2, 'Tale name must be at least 2 characters long')
     .max(100),
-  body: z.string().trim(),
+  body: z.array(z.string()),
   keywords: z.array(z.string()),
   isFavorite: z
     .boolean({
@@ -75,7 +81,7 @@ const talePartialSchema = z.object({
   isFavorite: z.boolean().nullable().optional(),
 })
 
-export const taleInsertSchema = taleSchema.omit({ id: true })
+export const taleInsertSchema = taleSchema.omit({ id: true, isFavorite: true })
 export const taleUpdateSchema = talePartialSchema.refine(
   (data) => data.title !== undefined || data.isFavorite !== undefined,
   {
