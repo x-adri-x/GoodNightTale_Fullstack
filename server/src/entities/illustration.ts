@@ -29,7 +29,7 @@ export class Illustration {
   url: string
 
   @Column('text')
-  name: string
+  key: string
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
@@ -42,7 +42,7 @@ export const illustrationSchema = validates<IllustrationBare>().with({
   taleId: z.number().positive(),
   prompt: z.string().trim(),
   url: z.string().trim(),
-  name: z.string(),
+  key: z.string(),
   createdAt: z.date(),
 })
 
@@ -53,7 +53,7 @@ export const illustrationInsertSchema = illustrationSchema.omit({
 
 export const illustrationUpdateSchema = illustrationSchema.omit({
   taleId: true,
-  name: true,
+  key: true,
   createdAt: true,
 })
 
