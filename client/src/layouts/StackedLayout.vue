@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const { links } = defineProps<{
   links: {
@@ -10,6 +10,7 @@ const { links } = defineProps<{
 }>()
 
 const route = useRoute()
+const router = useRouter()
 
 const navigation = computed(() =>
   links.map((item) => ({
@@ -29,7 +30,7 @@ const show = ref(false)
       <v-app-bar-title>Welcome ...</v-app-bar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="show">
-      <v-list-item v-for="link in navigation" :key="link.name">{{ link.label }}</v-list-item>
+      <v-list-item v-for="link in navigation" :key="link.name" @click="router.push({ name: `${link.name}`})">{{ link.label }}</v-list-item>
     </v-navigation-drawer>
     <v-main>
       <RouterView />

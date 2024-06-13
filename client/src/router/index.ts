@@ -30,6 +30,18 @@ const router = createRouter({
       ],
     },
     {
+      path: '/book',
+      component: HomeLayout,
+      beforeEnter: [authenticate],
+      children: [
+        {
+          path: '',
+          name: 'StoryBook',
+          component: () => import('../views/StoryBook.vue'),
+        },
+      ],
+    },
+    {
       path: '/login',
       name: 'Login',
       component: () => import('../views/LoginView.vue'),
