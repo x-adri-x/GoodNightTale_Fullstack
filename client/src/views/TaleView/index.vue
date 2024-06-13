@@ -78,7 +78,7 @@ watch(
 const createIllustrationObjects = () => {
   if (promptStore.illustrationPrompts) {
     return promptStore.illustrationPrompts.map((prompt, index) => {
-      return { prompt, name: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
+      return { prompt, key: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
     })
   }
 }
