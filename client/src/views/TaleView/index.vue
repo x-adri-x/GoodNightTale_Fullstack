@@ -15,7 +15,7 @@ import {
   generateIllustrations,
   handleError,
   checkImageValidity,
-} from './helpers'
+} from '@/utils/helpers'
 
 const taleStore = useTaleStore()
 const promptStore = usePromptStore()

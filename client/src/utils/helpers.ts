@@ -1,6 +1,6 @@
 import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
-import type { Session, SessionInsert } from '@mono/server/src/shared/entities'
+import type { SessionInsert } from '@mono/server/src/shared/entities'
 import { TRPCError } from '@trpc/server'
 import type { Ref } from 'vue'
 
