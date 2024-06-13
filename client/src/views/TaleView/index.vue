@@ -26,7 +26,7 @@ const errorMessage = ref()
 const getSessionTale = handleError(trpc.session.get.query, errorMessage)
 const tale = await getSessionTale()
 
-if (tale) {
+if (tale && !taleStore.generationInProgress) {
   if (!checkImageValidity(tale.createdAt)) {
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
     const downloads = tale.keys.map(async (key: string) => await safeIllustrationDownload(key))
@@ -72,23 +72,6 @@ watch(
     await safeCreate(sessionTale.value)
     pages.value = createPages(sessionTale.value)
     taleStore.generationInProgress = false
-    // try {
-    //   const response = await generateIllustrations(promptStore.illustrationPrompts!)
-    //   const illustrationUrls = response.map((r) => r.data[0].url)
-    //   const uploads = illustrationUrls.map(
-    //     async (url) => await trpc.illustration.upload.mutate(url)
-    //   )
-    //   sessionTale.value.keys = await Promise.all(uploads)
-    //   const downloads = sessionTale.value.keys.map(
-    //     async (key: string) => await trpc.illustration.download.query(key)
-    //   )
-    //   sessionTale.value.urls = await Promise.all(downloads)
-    //   await trpc.session.create.mutate(sessionTale.value)
-    //   pages.value = createPages(sessionTale.value)
-    //   taleStore.generationInProgress = false
-    // } catch (error) {
-    //   throw new Error(`An error has occured while creating the images:  ${error}`)
-    // }
   }
 )
 

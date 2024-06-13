@@ -10,11 +10,9 @@ export default authenticatedProcedure
       where: { id: authUser.id },
     })
 
+
     if (!tale) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: `Tale was not found`,
-      })
+      return null
     }
 
     if (tale.userId !== authUser.id) {

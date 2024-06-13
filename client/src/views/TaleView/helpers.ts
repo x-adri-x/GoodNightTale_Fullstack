@@ -1,6 +1,7 @@
 import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
 import type { Session, SessionInsert } from '@mono/server/src/shared/entities'
+import { TRPCError } from '@trpc/server'
 import type { Ref } from 'vue'
 
 export const createSessionObject = (text: string) => {
@@ -27,11 +28,6 @@ export const generateIllustrations = (prompts: string[]) => {
   return Promise.all(promises)
 }
 
-export const getGeneratedTale = async (): Promise<Session> => {
-  const tale = await trpc.session.get.query()
-  return tale
-}
-
 export const createPages = (tale: SessionInsert): string[] => {
   const tmpBody = tale.body.slice()
   const tmpUrls = tale.urls.slice()
@@ -45,13 +41,14 @@ export const createPages = (tale: SessionInsert): string[] => {
   return pages
 }
 
-export const handleError = <Args extends any[]>(fn: Function, error: Ref) => {
-  return function (...args: Args) {
+export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => {
+  return async function (...args: Args) {
     try {
-      return fn(...args)
-    } catch (err) {
-      if (!(err instanceof Error)) throw err
-      error.value = err.message
+      return await fn(...args)
+    } catch (error) {
+      if(error instanceof TRPCError) throw error
+      if (error instanceof Error)
+      errorRef.value = error.message
     }
   }
 }
