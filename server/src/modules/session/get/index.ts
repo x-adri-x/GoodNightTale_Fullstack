@@ -7,9 +7,8 @@ export default authenticatedProcedure
   .use(provideRepos({ Session }))
   .query(async ({ ctx: { authUser, repos } }) => {
     const tale = await repos.Session.findOne({
-      where: { id: authUser.id },
+      where: { userId: authUser.id },
     })
-
 
     if (!tale) {
       return null

@@ -57,5 +57,6 @@ export const fakeSession = <T extends Partial<Session>>(
   body: [random.string(), random.string()],
   keys: [random.string(), random.string()],
   urls: [random.string(), random.string()],
+  keywords: [random.string(), random.string()],
   ...overrides,
 })

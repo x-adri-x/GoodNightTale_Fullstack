@@ -26,6 +26,7 @@ const errorMessage = ref()
 const getSessionTale = handleError(trpc.session.get.query, errorMessage)
 const tale = await getSessionTale()
 
+
 if (tale && !taleStore.generationInProgress) {
   if (!checkImageValidity(tale.createdAt)) {
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
@@ -41,6 +42,7 @@ watch(
   () => taleStore.tale,
   async () => {
     sessionTale.value = createSessionObject(taleStore.tale)
+    sessionTale.value.keywords = taleStore.keywords
     promptStore.updatePrompt({ role: 'assistant', content: taleStore.tale })
     promptStore.updatePrompt({ role: 'user', content: constants.dallEPrompt })
     try {
@@ -84,10 +86,13 @@ const createIllustrationObjects = () => {
 }
 
 const saveTale = async () => {
-  const saved = await trpc.tale.create.mutate({
-    ...sessionTale.value,
-    keywords: taleStore.keywords,
-  })
+  const t = sessionTale.value ? sessionTale.value : tale
+  const safeSaveTale = handleError(trpc.tale.create.mutate, errorMessage)
+  const saved = await safeSaveTale({
+      title: t.title,
+      body: t.body,
+      keywords: t.keywords
+    })
 
   const illustrations = createIllustrationObjects()
   illustrations!.forEach(

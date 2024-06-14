@@ -27,6 +27,7 @@ it('saves a tale into session', async () => {
     body: ['once', 'upon', 'a time'],
     keys: expect.any(Array),
     urls: expect.any(Array),
+    keywords: expect.any(Array),
     userId: user.id,
     createdAt: expect.any(Date),
   })

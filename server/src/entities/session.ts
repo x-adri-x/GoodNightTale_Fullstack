@@ -41,6 +41,12 @@ export class Session {
     type: 'text',
     array: true,
   })
+  keywords: Array<String>
+
+  @Column({
+    type: 'text',
+    array: true,
+  })
   urls: Array<String>
 
   @CreateDateColumn({ type: 'timestamp' })
@@ -61,6 +67,7 @@ export const sessionSchema = validates<SessionBare>().with({
   body: z.array(z.string()),
   keys: z.array(z.string()),
   urls: z.array(z.string()),
+  keywords: z.array(z.string()),
 })
 
 export const sessionInsertSchema = sessionSchema.omit({
