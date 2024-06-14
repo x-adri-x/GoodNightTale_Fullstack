@@ -47,7 +47,19 @@ export class Session {
     type: 'text',
     array: true,
   })
+  prompts: Array<String>
+
+  @Column({
+    type: 'text',
+    array: true,
+  })
   urls: Array<String>
+
+  @Column({
+    type: 'bool',
+    nullable: true
+  })
+  isSaved: boolean | null
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
@@ -68,16 +80,17 @@ export const sessionSchema = validates<SessionBare>().with({
   keys: z.array(z.string()),
   urls: z.array(z.string()),
   keywords: z.array(z.string()),
+  prompts: z.array(z.string()),
+  isSaved: z
+  .boolean({
+    invalid_type_error: 'isSaved must be a boolean',
+  })
+  .nullable(),
 })
 
 export const sessionInsertSchema = sessionSchema.omit({
   id: true,
   userId: true,
 })
-export const sessionUpdateSchema = sessionSchema.omit({
-  id: true,
-  userId: true,
-})
 
 export type SessionInsert = z.infer<typeof sessionInsertSchema>
-export type SessionUpdate = z.infer<typeof sessionUpdateSchema>

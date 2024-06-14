@@ -26,5 +26,7 @@ it('throws an error if tale with id could not be found', async () => {
   const { db, tale, user } = await setupTest()
   const { get } = createCaller(authContext({ db }, user))
 
-  await expect(get(tale.id + 12345)).rejects.toThrow('Tale was not found')
+  const saved = await get(tale.id + 12345)
+
+  expect(saved).toBeNull()
 })

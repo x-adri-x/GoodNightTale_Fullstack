@@ -37,7 +37,6 @@ export const createPages = (tale: SessionInsert): string[] => {
     tmpBody.splice(parseInt(index, 10), 0, tmpUrls[i]!)
   })
   pages.push(...tmpBody)
-  console.log('tale', tale)
   return pages
 }
 
