@@ -1,4 +1,4 @@
-import { extractPromptsForIllustrations } from '../helpers'
+import { extractPromptsForIllustrations } from '@/utils/helpers'
 import { fakePrompts } from './fakes'
 
 describe('extracts illustration prompts', () => {

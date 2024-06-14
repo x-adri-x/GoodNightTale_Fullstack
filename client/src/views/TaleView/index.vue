@@ -83,7 +83,7 @@ watch(
 )
 
 const createIllustrationObjects = () => {
-    return sessionTale.value.prompts.map((prompt, index) => {
+    return sessionTale.value.prompts.map((prompt:string, index: number) => {
       return { prompt, key: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
   })
 }
@@ -97,7 +97,7 @@ const saveTale = async () => {
     })
   const illustrations = createIllustrationObjects()
   illustrations!.forEach(
-    async (i) => await trpc.illustration.create.mutate({ ...i, taleId: saved.id })
+    async (i: { taleId: number; prompt: string; url: string; key: string }) => await trpc.illustration.create.mutate({ ...i, taleId: saved.id })
   )
   isSaved.value = true
   sessionTale.value.isSaved = true

@@ -1,4 +1,4 @@
-import { createSessionObject } from '../helpers'
+import { createSessionObject } from '@/utils/helpers'
 import { fakeGeneratedTale } from './fakes'
 
 describe('formats text into title and body', () => {

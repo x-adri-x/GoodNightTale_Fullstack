@@ -15,6 +15,7 @@ it('saves a tale into session', async () => {
     userId: user.id,
     title: 'Fake session',
     body: ['once', 'upon', 'a time'],
+    isSaved: true
   })
 
   // ACT
@@ -30,6 +31,7 @@ it('saves a tale into session', async () => {
     keywords: expect.any(Array),
     prompts: expect.any(Array),
     userId: user.id,
+    isSaved: true,
     createdAt: expect.any(Date),
   })
 })
