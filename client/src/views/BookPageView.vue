@@ -6,8 +6,10 @@ import CarouselComponent from './TaleView/CarouselComponent.vue'
 import CarouselSlide from './TaleView/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { mdiTooltipEdit } from '@mdi/js'
+import { useRouter } from 'vue-router'
 
 const isFavorite = ref(false)
+const router = useRouter()
 
 const favorite = async (id: number) => {
   await trpc.tale.update.mutate({ taleId: id, isFavorite: true })
@@ -19,7 +21,11 @@ const favorite = async (id: number) => {
     <template v-slot="props">
       <div class="heading">
         <h1>{{ props.tale.title }}</h1>
-        <v-icon :icon="mdiTooltipEdit" :size="30"></v-icon>
+        <v-icon
+          :icon="mdiTooltipEdit"
+          :size="30"
+          @click="router.push(`/edit/${props.tale.id}`)"
+        ></v-icon>
       </div>
 
       <CarouselComponent v-slot="{ currentSlide }">

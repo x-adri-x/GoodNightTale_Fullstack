@@ -13,7 +13,8 @@ export default taleIdOwnerProcedure
       taleId: true,
     })
   )
-  .query(async ({ input: { taleId }, ctx: { repos } }) => {
+  .query(async ({ input, ctx: { repos } }) => {
+    const { taleId } = input
     const illustrations = (await repos.Illustration.find({
       where: {
         taleId,

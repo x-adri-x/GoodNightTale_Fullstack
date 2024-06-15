@@ -3,7 +3,7 @@ import { trpc } from '@/trpc'
 import { watch, ref } from 'vue'
 import useTaleStore from '@/stores/tale'
 import usePromptStore from '@/stores/prompt'
-import {useRouter} from 'vue-router'
+import { useRouter } from 'vue-router'
 import constants from '@/constants/constants'
 import AlertToast from '@/components/AlertToast.vue'
 import CarouselComponent from './CarouselComponent.vue'
@@ -15,7 +15,8 @@ import {
   extractPromptsForIllustrations,
   generateIllustrations,
   handleError,
-  checkImageValidity,
+  checkUrlValidity,
+  refreshIllustrationUrls,
 } from '@/utils/helpers'
 
 const router = useRouter()
@@ -29,13 +30,12 @@ const isSaved = ref()
 const getSessionTale = handleError(trpc.session.get.query, errorMessage)
 sessionTale.value = await getSessionTale()
 
-
 if (sessionTale.value && !taleStore.generationInProgress) {
   isSaved.value = sessionTale.value.isSaved
-  if (!checkImageValidity(sessionTale.value.createdAt)) {
-    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    const downloads = sessionTale.value.keys.map(async (key: string) => await safeIllustrationDownload(key))
-    sessionTale.value.urls = await Promise.all(downloads)
+  if (!checkUrlValidity(sessionTale.value.createdAt)) {
+    const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
+    errorMessage.value = error
+    sessionTale.value.urls = urls
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
     await safeCreate(sessionTale.value)
   }
@@ -70,34 +70,33 @@ watch(
     const uploads = illustrationUrls.map(async (url: string) => await safeIllustrationUpload(url))
 
     sessionTale.value.keys = await Promise.all(uploads)
-    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    const downloads = sessionTale.value.keys.map(
-      async (key: string) => await safeIllustrationDownload(key)
-    )
-    sessionTale.value.urls = await Promise.all(downloads)
+    const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
+    errorMessage.value = error
+    sessionTale.value.urls = urls
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-    await safeCreate({...sessionTale.value, isSaved: false})
+    await safeCreate({ ...sessionTale.value, isSaved: false })
     pages.value = createPages(sessionTale.value)
     taleStore.generationInProgress = false
   }
 )
 
 const createIllustrationObjects = () => {
-    return sessionTale.value.prompts.map((prompt:string, index: number) => {
-      return { prompt, key: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
+  return sessionTale.value.prompts.map((prompt: string, index: number) => {
+    return { prompt, key: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
   })
 }
 
 const saveTale = async () => {
   const safeSaveTale = handleError(trpc.tale.create.mutate, errorMessage)
   const saved = await safeSaveTale({
-      title: sessionTale.value.title,
-      body: sessionTale.value.body,
-      keywords: sessionTale.value.keywords
-    })
+    title: sessionTale.value.title,
+    body: sessionTale.value.body,
+    keywords: sessionTale.value.keywords,
+  })
   const illustrations = createIllustrationObjects()
   illustrations!.forEach(
-    async (i: { taleId: number; prompt: string; url: string; key: string }) => await trpc.illustration.create.mutate({ ...i, taleId: saved.id })
+    async (i: { taleId: number; prompt: string; url: string; key: string }) =>
+      await trpc.illustration.create.mutate({ ...i, taleId: saved.id })
   )
   isSaved.value = true
   sessionTale.value.isSaved = true
@@ -105,10 +104,9 @@ const saveTale = async () => {
   await safeCreate(sessionTale.value)
 }
 
-const handleClick = async() => {
+const handleClick = async () => {
   isSaved.value ? router.push('/book') : await saveTale()
 }
-
 </script>
 <template>
   <div class="main">
@@ -131,7 +129,11 @@ const handleClick = async() => {
           </div>
         </CarouselSlide>
       </CarouselComponent>
-      <ButtonPrimary class="btn" :text="isSaved ? 'Go to Storybook':'Save tale to Storybook'" @click="handleClick" />
+      <ButtonPrimary
+        class="btn"
+        :text="isSaved ? 'Go to Storybook' : 'Save tale to Storybook'"
+        @click="handleClick"
+      />
     </div>
     <v-skeleton-loader v-else-if="taleStore.generationInProgress" type="text"></v-skeleton-loader>
   </div>

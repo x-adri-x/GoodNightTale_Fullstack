@@ -51,7 +51,17 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
   }
 }
 
-export const checkImageValidity = (createdAt: string) => {
+export const checkUrlValidity = (createdAt: string) => {
   const seconds = (new Date().getTime() - new Date(createdAt).getTime()) / 1000
   return seconds < 86400
+}
+
+export const refreshIllustrationUrls = async (
+  keys: string[],
+  errorMessage: Ref
+): Promise<{ urls: string[]; error: Ref }> => {
+  const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+  const downloads = keys.map(async (key: string) => await safeIllustrationDownload(key))
+  const urls = await Promise.all(downloads)
+  return { urls, error: errorMessage }
 }

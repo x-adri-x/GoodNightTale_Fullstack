@@ -54,6 +54,18 @@ const router = createRouter({
       ],
     },
     {
+      path: '/edit/:id',
+      component: HomeLayout,
+      beforeEnter: [authenticate],
+      children: [
+        {
+          path: '',
+          name: 'Edit',
+          component: () => import('../views/EditView.vue'),
+        },
+      ],
+    },
+    {
       path: '/login',
       name: 'Login',
       component: () => import('../views/LoginView.vue'),

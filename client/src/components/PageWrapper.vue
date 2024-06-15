@@ -11,10 +11,12 @@ const id = route.params.id as string
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 const tale = await safeGet(parseInt(id, 10))
+const urls = tale.illustrations.map((i: { url: any }) => i.url)
+
 const pages: string[] = []
 pages.push(tale.title)
 const tmpBody = tale.body.slice()
-const urls = tale.illustrations.map((i: { url: any }) => i.url)
+
 constants.illustrationIndexes.split(',').forEach((index, i) => {
   tmpBody.splice(parseInt(index, 10), 0, urls[i]!)
 })
@@ -22,7 +24,7 @@ pages.push(...tmpBody)
 </script>
 <template>
   <div class="main">
-    <slot :tale="tale" :illustrations="tale.illustrations" :pages="pages"></slot>
+    <slot :tale="tale" :pages="pages"></slot>
   </div>
 </template>
 <style scoped>

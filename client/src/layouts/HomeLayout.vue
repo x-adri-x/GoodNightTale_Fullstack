@@ -3,7 +3,7 @@ import StackedLayout from './StackedLayout.vue'
 
 const links = [
   { label: 'Login', name: 'Login' },
-  { label: 'Signup', name: 'Signup' },
+  { label: 'Home', name: 'Home' },
   { label: 'Storybook', name: 'StoryBook' },
 ]
 </script>
