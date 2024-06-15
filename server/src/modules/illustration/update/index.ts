@@ -1,20 +1,28 @@
 import { Illustration } from '@server/entities'
-import { illustrationUpdateSchema } from '@server/entities/illustration'
-import { taleIdOwnerProcedure } from '@server/trpc/taleIdOwnerProcedure'
+import {
+  illustrationUpdateSchema,
+  type IllustrationUpdate,
+} from '@server/entities/illustration'
 import provideRepos from '@server/trpc/provideRepos'
 import { TRPCError } from '@trpc/server'
+import { taleIdOwnerProcedure } from '@server/trpc/taleIdOwnerProcedure'
 
 export default taleIdOwnerProcedure
   .use(provideRepos({ Illustration }))
   .input(illustrationUpdateSchema)
-  .mutation(async ({ input: illustration, ctx: { repos } }) => {
+  .mutation(async ({ input, ctx: { repos } }) => {
+    function removeIdFromInput(obj: IllustrationUpdate & { taleId?: number }) {
+      const { taleId, id, ...updateObject } = obj
+      return { id, updateObject }
+    }
+
+    const { id, updateObject } = removeIdFromInput(input)
     const { affected } = await repos.Illustration.update(
       {
-        id: illustration.id,
+        id,
       },
       {
-        prompt: illustration.prompt,
-        url: illustration.url,
+        ...updateObject,
         createdAt: new Date(),
       }
     )
@@ -27,7 +35,7 @@ export default taleIdOwnerProcedure
     }
 
     const illustrationUpdated = await repos.Illustration.findOneByOrFail({
-      id: illustration.id,
+      id,
     })
 
     return illustrationUpdated

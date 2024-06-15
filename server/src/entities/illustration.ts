@@ -58,4 +58,4 @@ export const illustrationUpdateSchema = illustrationSchema.omit({
 })
 
 export type IllustrationInsert = z.infer<typeof illustrationInsertSchema>
-export type IllustrationUpdata = z.infer<typeof illustrationUpdateSchema>
+export type IllustrationUpdate = z.infer<typeof illustrationUpdateSchema>

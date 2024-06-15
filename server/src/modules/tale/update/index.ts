@@ -8,9 +8,7 @@ export default taleIdOwnerProcedure
   .use(provideRepos({ Tale }))
   .input(taleUpdateSchema)
   .mutation(async ({ input, ctx: { repos } }) => {
-    function removeIdFromInput(
-      obj: TaleUpdate & { taleId?: number }
-    ): Partial<Omit<TaleUpdate, 'id' | 'taleId'>> {
+    function removeIdFromInput(obj: TaleUpdate & { taleId?: number }) {
       const { taleId, ...updateObject } = obj
       return updateObject
     }
