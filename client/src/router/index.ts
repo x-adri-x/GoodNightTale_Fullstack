@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
+import ContentLayout from '@/layouts/ContentLayout.vue'
 import { authenticate } from './guards'
 
 const router = createRouter({
@@ -7,7 +7,7 @@ const router = createRouter({
   routes: [
     {
       path: '/home',
-      component: HomeLayout,
+      component: ContentLayout,
       beforeEnter: [authenticate],
       children: [
         {
@@ -19,7 +19,7 @@ const router = createRouter({
     },
     {
       path: '/tale',
-      component: HomeLayout,
+      component: ContentLayout,
       beforeEnter: [authenticate],
       children: [
         {
@@ -31,7 +31,7 @@ const router = createRouter({
     },
     {
       path: '/book',
-      component: HomeLayout,
+      component: ContentLayout,
       beforeEnter: [authenticate],
       children: [
         {
@@ -43,7 +43,7 @@ const router = createRouter({
     },
     {
       path: '/page/:id',
-      component: HomeLayout,
+      component: ContentLayout,
       beforeEnter: [authenticate],
       children: [
         {
@@ -55,7 +55,7 @@ const router = createRouter({
     },
     {
       path: '/edit/:id',
-      component: HomeLayout,
+      component: ContentLayout,
       beforeEnter: [authenticate],
       children: [
         {
