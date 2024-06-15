@@ -73,7 +73,4 @@ i {
   color: #181818;
   border-radius: 50%;
 }
-.disabled {
-  background-color: rgba(235, 235, 235, 0.24);
-}
 </style>

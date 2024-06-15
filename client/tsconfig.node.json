@@ -6,7 +6,6 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*",
-    "postcss.config.*"
   ],
   "compilerOptions": {
     "composite": true,

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { trpc } from '@/trpc'
 import { ref } from 'vue'
-import CarouselComponent from './TaleView/CarouselComponent.vue'
-import CarouselSlide from './TaleView/CarouselSlide.vue'
+import CarouselComponent from '@/components/CarouselComponent.vue'
+import CarouselSlide from '@/components/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { mdiTooltipEdit } from '@mdi/js'
 import { useRouter, useRoute } from 'vue-router'

@@ -6,8 +6,8 @@ import usePromptStore from '@/stores/prompt'
 import { useRouter } from 'vue-router'
 import constants from '@/constants/constants'
 import AlertToast from '@/components/AlertToast.vue'
-import CarouselComponent from './CarouselComponent.vue'
-import CarouselSlide from './CarouselSlide.vue'
+import CarouselComponent from '@/components/CarouselComponent.vue'
+import CarouselSlide from '@/components/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import {
   createPages,
