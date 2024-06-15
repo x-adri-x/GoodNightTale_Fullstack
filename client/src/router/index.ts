@@ -42,6 +42,18 @@ const router = createRouter({
       ],
     },
     {
+      path: '/page/:id',
+      component: HomeLayout,
+      beforeEnter: [authenticate],
+      children: [
+        {
+          path: '',
+          name: 'Page',
+          component: () => import('../views/BookPageView.vue'),
+        },
+      ],
+    },
+    {
       path: '/login',
       name: 'Login',
       component: () => import('../views/LoginView.vue'),

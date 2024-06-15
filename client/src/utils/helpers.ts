@@ -45,9 +45,8 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
     try {
       return await fn(...args)
     } catch (error) {
-      if(error instanceof TRPCError) throw error
-      if (error instanceof Error)
-      errorRef.value = error.message
+      if (error instanceof TRPCError) throw error
+      if (error instanceof Error) errorRef.value = error.message
     }
   }
 }

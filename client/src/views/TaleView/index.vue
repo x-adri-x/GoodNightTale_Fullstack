@@ -76,7 +76,7 @@ watch(
     )
     sessionTale.value.urls = await Promise.all(downloads)
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-    await safeCreate(sessionTale.value)
+    await safeCreate({...sessionTale.value, isSaved: false})
     pages.value = createPages(sessionTale.value)
     taleStore.generationInProgress = false
   }
@@ -102,8 +102,7 @@ const saveTale = async () => {
   isSaved.value = true
   sessionTale.value.isSaved = true
   const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-  const updated = await safeCreate(sessionTale.value)
-  console.log(updated)
+  await safeCreate(sessionTale.value)
 }
 
 const handleClick = async() => {
