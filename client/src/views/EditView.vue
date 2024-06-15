@@ -8,7 +8,7 @@ import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { handleError, checkUrlValidity } from '@/utils/helpers'
 
 const title = ref('')
-const prompts = ref([])
+const prompts = ref(['', ''])
 
 const errorMessage = ref()
 const illustrations = ref()
@@ -20,9 +20,10 @@ illustrations.value = await getIllustrations({ taleId: parseInt(id, 10) })
 
 illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
   if (!checkUrlValidity(i.createdAt)) {
-    console.log('yoooo')
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
     i.url = await safeIllustrationDownload(i.key)
+    const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)
+    await safeCreate(i)
   }
 })
 </script>
