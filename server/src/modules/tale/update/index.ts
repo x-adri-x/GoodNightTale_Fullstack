@@ -11,7 +11,7 @@ export default taleIdOwnerProcedure
     function removeIdFromInput(
       obj: TaleUpdate & { taleId?: number }
     ): Partial<Omit<TaleUpdate, 'id' | 'taleId'>> {
-      const { id, taleId, ...updateObject } = obj
+      const { taleId, ...updateObject } = obj
       return updateObject
     }
 
@@ -23,7 +23,7 @@ export default taleIdOwnerProcedure
 
     const affected = await repos.Tale.update(
       {
-        id: input.id,
+        id: input.taleId,
       },
       updateObject
     )
@@ -36,7 +36,7 @@ export default taleIdOwnerProcedure
     }
 
     await repos.Tale.findOneByOrFail({
-      id: input.id,
+      id: input.taleId,
     })
 
     return affected

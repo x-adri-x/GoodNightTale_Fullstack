@@ -21,7 +21,6 @@ it('sets a new title for the tale', async () => {
 
   const updated = await update({
     taleId: created.id,
-    id: created.id,
     title: 'Updated title',
   })
 
@@ -46,7 +45,6 @@ it('sets the tale as favorite', async () => {
 
   const updated = await update({
     taleId: created.id,
-    id: created.id,
     isFavorite: true,
   })
 
@@ -69,13 +67,11 @@ it('throws an error if tale is not found', async () => {
 
   // ACT (When)
   const created = await create(tale)
-
   // ACT (When) & ASSERT (Then)
   await expect(
     update({
-      taleId: created.id,
+      taleId: created.id + 12345,
       ...tale,
-      id: tale.id + 12345,
       title: 'Updated title',
     })
   ).rejects.toThrow(/not found/i)

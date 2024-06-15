@@ -71,7 +71,6 @@ export const taleSchema = validates<TaleBare>().with({
 })
 
 const talePartialSchema = z.object({
-  id: z.number().int().positive(),
   title: z
     .string()
     .trim()
