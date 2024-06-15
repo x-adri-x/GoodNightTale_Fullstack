@@ -5,6 +5,7 @@ import PageWrapper from '@/components/PageWrapper.vue'
 import CarouselComponent from './TaleView/CarouselComponent.vue'
 import CarouselSlide from './TaleView/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
+import { mdiTooltipEdit } from '@mdi/js'
 
 const isFavorite = ref(false)
 
@@ -16,7 +17,11 @@ const favorite = async (id: number) => {
 <template>
   <PageWrapper>
     <template v-slot="props">
-      <h1>{{ props.tale.title }}</h1>
+      <div class="heading">
+        <h1>{{ props.tale.title }}</h1>
+        <v-icon :icon="mdiTooltipEdit" :size="30"></v-icon>
+      </div>
+
       <CarouselComponent v-slot="{ currentSlide }">
         <CarouselSlide v-for="(page, i) in props.pages" :key="i">
           <div v-show="i === currentSlide">
@@ -39,6 +44,14 @@ const favorite = async (id: number) => {
   margin-top: 40px;
   width: 100vw;
   height: 50px;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+}
+
+h1 {
+  font-size: x-large;
 }
 
 img {
