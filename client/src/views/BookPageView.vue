@@ -14,6 +14,7 @@ const errorMessage = ref()
 const tale = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
+const isFavorite = ref(false)
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
@@ -31,6 +32,7 @@ pages.push(...tmpBody)
 
 const favorite = async (id: number) => {
   await trpc.tale.update.mutate({ taleId: id, isFavorite: true })
+  isFavorite.value = true
 }
 </script>
 <template>
@@ -49,7 +51,7 @@ const favorite = async (id: number) => {
       </CarouselSlide>
     </CarouselComponent>
     <ButtonPrimary
-      v-show="!tale.isFavorite"
+      v-show="!isFavorite"
       class="btn"
       text="Mark as Favorite"
       @click="() => favorite(tale.id)"

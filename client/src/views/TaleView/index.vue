@@ -67,11 +67,13 @@ watch(
     const response = await safeGenerateIllustrations(sessionTale.value.prompts)
     const illustrationUrls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
     const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
-    const uploads = illustrationUrls.map(async (url: string) => await safeIllustrationUpload(url))
+    const uploads = illustrationUrls.map(
+      async (url: string) => await safeIllustrationUpload({ url })
+    )
 
     sessionTale.value.keys = await Promise.all(uploads)
     const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
-    errorMessage.value = error
+    // TODO: solve what happens when there is no error thrown but the ref is returned
     sessionTale.value.urls = urls
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
     await safeCreate({ ...sessionTale.value, isSaved: false })
@@ -135,7 +137,10 @@ const handleClick = async () => {
         @click="handleClick"
       />
     </div>
-    <v-skeleton-loader v-else-if="taleStore.generationInProgress" type="text"></v-skeleton-loader>
+    <div v-else-if="taleStore.generationInProgress">
+      <v-skeleton-loader type="text"></v-skeleton-loader>
+      <p>Your bedtime story is being generated.</p>
+    </div>
   </div>
 </template>
 <style scoped>

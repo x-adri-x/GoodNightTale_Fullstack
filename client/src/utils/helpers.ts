@@ -46,17 +46,16 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
     try {
       return await fn(...args)
     } catch (error) {
-      if (!(error instanceof Error)) throw error
-      if (error instanceof TRPCError || error instanceof TRPCClientError)
-        errorRef.value = error.message
+      if (!(error instanceof Error)) throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
+      if (error instanceof TRPCError || error instanceof TRPCClientError) console.log('threw me')
+      errorRef.value = error.message
     }
   }
 }
 
 export const checkUrlValidity = (createdAt: string) => {
   const seconds = (new Date().getTime() - new Date(createdAt).getTime()) / 1000
-  return seconds < 1
-  // return seconds < 86400
+  return seconds < 86400
 }
 
 /**

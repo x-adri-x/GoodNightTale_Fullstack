@@ -58,7 +58,6 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
   const tale = await trpc.openai.chat.mutate(promptStore.stream)
   taleStore.tale = tale
   taleStore.keywords = keywords.value
-  
 })
 </script>
 
@@ -130,7 +129,6 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
 .main {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   padding: 2rem;
   width: 100%;
   justify-content: flex-start;
