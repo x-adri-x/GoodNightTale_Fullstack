@@ -15,7 +15,7 @@ const router = useRouter()
 
 function logoutUser() {
   logout()
-  router.push({ name: 'Login' })
+  router.push({ name: 'Landing' })
 }
 
 const navigation = computed(() =>

@@ -19,38 +19,40 @@ const [submitSignup, errorMessage] = useErrorMessage(async () => {
 
 <template>
   <div class="main">
-    <h1>Sign up for an account</h1>
-    <v-form role="form" @submit.prevent="submitSignup">
-      <v-text-field
-        v-model="userForm.email"
-        theme="primary-darken-1"
-        label="email"
-        type="email"
-      ></v-text-field>
-      <v-text-field
-        v-model="userForm.password"
-        theme="primary-darken-1"
-        label="password"
-        type="password"
-      ></v-text-field>
-      <ButtonPrimary
-        class="btn"
-        type="submit"
-        text="Sign up"
-        :isDisabled="!userForm.password || !userForm.email"
-      />
-      <p v-if="!hasSucceeded">
-        Already a member?
-        {{ ' ' }}
-        <RouterLink :to="{ name: 'Login' }" class="bold">Log in</RouterLink>
-      </p>
-    </v-form>
-    <div v-if="hasSucceeded">
-      <p data-testid="successMessage">You have successfully signed up! You can now log in.</p>
-      <RouterLink :to="{ name: 'Login' }" class="bold">Go to the login page</RouterLink>
-    </div>
-    <div v-if="errorMessage">
-      <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
+    <div>
+      <h1>Sign up for an account</h1>
+      <v-form role="form" @submit.prevent="submitSignup">
+        <v-text-field
+          v-model="userForm.email"
+          theme="primary-darken-1"
+          label="email"
+          type="email"
+        ></v-text-field>
+        <v-text-field
+          v-model="userForm.password"
+          theme="primary-darken-1"
+          label="password"
+          type="password"
+        ></v-text-field>
+        <ButtonPrimary
+          class="btn"
+          type="submit"
+          text="Sign up"
+          :isDisabled="!userForm.password || !userForm.email"
+        />
+        <p v-if="!hasSucceeded">
+          Already a member?
+          {{ ' ' }}
+          <RouterLink :to="{ name: 'Login' }" class="bold">Log in</RouterLink>
+        </p>
+      </v-form>
+      <div v-if="hasSucceeded">
+        <p data-testid="successMessage">You have successfully signed up! You can now log in.</p>
+        <RouterLink :to="{ name: 'Login' }" class="bold">Go to the login page</RouterLink>
+      </div>
+      <div v-if="errorMessage">
+        <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +60,7 @@ const [submitSignup, errorMessage] = useErrorMessage(async () => {
 .main {
   display: flex;
   flex-direction: column;
+  align-items: center;
   height: 100vh;
   padding: 2rem;
   width: 100%;

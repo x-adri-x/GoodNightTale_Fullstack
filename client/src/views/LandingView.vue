@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 
 const router = useRouter()
+const mobileView = ref(window.innerWidth < 768)
 </script>
 <template>
   <div class="main">
-    <h1>Good Night Tale App</h1>
-    <nav>
-      <ButtonPrimary class="btn" text="Login" @click="router.push('/login')" />
-      <ButtonPrimary class="btn" text="Create account" @click="router.push('/signup')" />
-      <!-- <RouterLink class="navlink" to="/login">Login</RouterLink>
-      <RouterLink class="navlink" to="/signup">Create account</RouterLink> -->
-    </nav>
+    <div class="container">
+      <div class="headings">
+        <h1>Good Night Tale App</h1>
+        <h2 v-show="!mobileView">Generate a cute tale for your little one <br />with OpenAI.</h2>
+      </div>
+
+      <nav>
+        <ButtonPrimary class="btn" text="Login" @click="router.push('/login')" />
+        <ButtonPrimary class="btn" text="Create account" @click="router.push('/signup')" />
+      </nav>
+    </div>
   </div>
 </template>
 <style scoped>
@@ -28,6 +34,16 @@ const router = useRouter()
   justify-content: flex-end;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headings {
+  margin-top: 20vh;
+}
+
 h1 {
   text-align: center;
   font-size: 4.8rem;
@@ -35,24 +51,61 @@ h1 {
   margin-bottom: 60px;
 }
 
-.btn {
+nav {
   width: 80vw;
+  text-align: center;
+}
+.btn {
+  width: 80%;
   height: 50px;
   margin-top: auto;
   color: blanchedalmond;
   margin-bottom: 20px;
 }
 
-/* .navlink {
-  letter-spacing: 1;
-  background-color: transparent;
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.6);
-  margin: 2rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80vw;
-  height: 50px;
-  color: blanchedalmond;
-} */
+@media (width >= 768px) {
+  .main {
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 800px;
+  }
+  .btn {
+    background: linear-gradient(180deg, rgba(238, 175, 165, 1) 0%, rgba(115, 144, 152, 1) 100%);
+    width: 100%;
+    height: 80px;
+    margin: 10px 0px;
+    color: var(--vt-c-black-soft);
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: 3rem;
+    justify-self: flex-start;
+    margin-bottom: 0px;
+    text-align: left;
+    margin-top: 2vh;
+    letter-spacing: 2px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  nav {
+    margin-top: 10vh;
+    width: 100%;
+  }
+}
+
+@media (width >= 1055px) {
+  h1 {
+    margin-top: 10vh;
+  }
+
+  nav {
+    margin-bottom: 40vh;
+  }
+}
 </style>
