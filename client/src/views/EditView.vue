@@ -4,7 +4,12 @@ import { useRoute } from 'vue-router'
 import { trpc } from '@/trpc'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
-import { handleError, checkUrlValidity, generateIllustrations } from '@/utils/helpers'
+import {
+  handleError,
+  checkUrlValidity,
+  generateIllustrations,
+  refreshIllustrationUrls,
+} from '@/utils/helpers'
 
 const title = ref('')
 const prompt = ref('')
@@ -14,25 +19,44 @@ const illustrations = ref()
 const tale = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
+const isLoading = ref(false)
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
+if (errorMessage.value === 'Tale not found') {
+  // TODO: handle when no tale is found with the id in params
+  // redirect to 404 page
+}
 
 const updateTitle = async () => {
+  isLoading.value = true
   const updated = await trpc.tale.update.mutate({
     taleId,
     title: title.value,
   })
   if (updated.affected === 1) {
+    isLoading.value = false
     tale.value.title = title.value
     title.value = ''
   }
 }
 
-const updatePrompt = async (illustrationId: any) => {
+const updatePrompt = async (illustrationId: any, key: string) => {
+  isLoading.value = true
+  // DALL-E generates the images from the new prompts
   const safeGenerateIllustrations = handleError(generateIllustrations, errorMessage)
   const response = await safeGenerateIllustrations([prompt.value])
-  const urls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
+  const generatedUrls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
+
+  // upload the new images to S3 with the same key
+  const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
+  await safeIllustrationUpload({ url: generatedUrls[0], key })
+
+  // grab the new url-s from S3
+  const { urls, error } = await refreshIllustrationUrls([key], errorMessage)
+  errorMessage.value = error.value
+
+  // update the illustration with the new prompt and url in the database
   const updated = await trpc.illustration.update.mutate({
     taleId,
     id: illustrationId,
@@ -44,6 +68,7 @@ const updatePrompt = async (illustrationId: any) => {
   if (index !== -1) {
     illustrations.value[index] = updated
   }
+  isLoading.value = false
 }
 
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
@@ -62,6 +87,7 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
   <div v-if="errorMessage">
     <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
   </div>
+
   <div class="main" v-if="illustrations">
     <h1>Customize your tale</h1>
     <h2>{{ tale.title }}</h2>
@@ -72,7 +98,9 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
       :rules="[(value: string | any[]) => value.length >= 5]"
       :label="tale.title"
     ></v-text-field>
+    <v-skeleton-loader v-if="isLoading" type="button"></v-skeleton-loader>
     <ButtonPrimary
+      v-else
       class="btn"
       text="Save changes"
       :isDisabled="title.length < 3"
@@ -95,11 +123,13 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
         ></v-textarea>
 
         <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
+        <v-skeleton-loader v-if="isLoading" type="button"></v-skeleton-loader>
         <ButtonPrimary
+          v-else
           class="btn"
           text="Save changes"
           :isDisabled="prompt.length < 20"
-          @click="() => updatePrompt(illustration.id)"
+          @click="() => updatePrompt(illustration.id, illustration.key)"
         />
         <v-divider></v-divider>
       </div>

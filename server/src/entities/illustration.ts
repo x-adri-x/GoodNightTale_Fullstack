@@ -57,5 +57,17 @@ export const illustrationUpdateSchema = illustrationSchema.omit({
   createdAt: true,
 })
 
+export const illustrationUploadSchema = illustrationSchema
+  .extend({
+    key: illustrationSchema.shape.key.optional(),
+  })
+  .omit({
+    id: true,
+    taleId: true,
+    prompt: true,
+    createdAt: true,
+  })
+
 export type IllustrationInsert = z.infer<typeof illustrationInsertSchema>
 export type IllustrationUpdate = z.infer<typeof illustrationUpdateSchema>
+export type IllustrationUploadSchema = z.infer<typeof illustrationUploadSchema>

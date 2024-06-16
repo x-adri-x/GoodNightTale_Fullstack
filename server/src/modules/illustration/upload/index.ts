@@ -1,8 +1,8 @@
 import { TRPCError } from '@trpc/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { z } from 'zod'
 import 'dotenv/config'
 import axios from 'axios'
+import { illustrationUploadSchema } from '@server/entities/illustration'
 import { authenticatedProcedure } from '@server/trpc/authenticatedProcedure'
 import { Chance } from 'chance'
 import config from '@server/config'
@@ -11,8 +11,8 @@ const random = config.isCi ? Chance(1) : Chance()
 const { env } = process
 
 export default authenticatedProcedure
-  .input(z.string())
-  .mutation(async ({ input: url }) => {
+  .input(illustrationUploadSchema)
+  .mutation(async ({ input }) => {
     const s3 = new S3Client({
       region: env.REGION || 'eu-north-1',
       credentials: {
@@ -21,8 +21,8 @@ export default authenticatedProcedure
       },
     })
 
-    const response = await axios.get(url, { responseType: 'arraybuffer' })
-    const key = random.string()
+    const response = await axios.get(input.url, { responseType: 'arraybuffer' })
+    const key = input.key ? input.key : random.string()
     const command = new PutObjectCommand({
       Bucket: env.BUCKET,
       Key: key,

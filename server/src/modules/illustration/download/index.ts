@@ -27,10 +27,13 @@ export default authenticatedProcedure
       const url = await getSignedUrl(s3, get, { expiresIn: 86400 })
       return url
     } catch (error) {
-      if (!(error instanceof Error)) throw error
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: `Something went wrong while uploading to S3: ${error.message}`,
-      })
+      if (!(error instanceof Error)) {
+        throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
+      } else {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Something went wrong while uploading to S3: ${error.message}`,
+        })
+      }
     }
   })

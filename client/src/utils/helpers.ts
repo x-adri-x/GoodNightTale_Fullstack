@@ -1,6 +1,7 @@
 import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
 import type { SessionInsert } from '@mono/server/src/shared/entities'
+import { TRPCClientError } from '@trpc/client'
 import { TRPCError } from '@trpc/server'
 import type { Ref } from 'vue'
 
@@ -45,17 +46,25 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
     try {
       return await fn(...args)
     } catch (error) {
-      if (error instanceof TRPCError) throw error
-      if (error instanceof Error) errorRef.value = error.message
+      if (!(error instanceof Error)) throw error
+      if (error instanceof TRPCError || error instanceof TRPCClientError)
+        errorRef.value = error.message
     }
   }
 }
 
 export const checkUrlValidity = (createdAt: string) => {
   const seconds = (new Date().getTime() - new Date(createdAt).getTime()) / 1000
-  return seconds < 86400
+  return seconds < 1
+  // return seconds < 86400
 }
 
+/**
+ * A function to get new signed URLs from S3.
+ * @param keys An array of the uploaded image keys for AWS S3.
+ * @param errorMessage A ref to hold the error.message value.
+ * @returns An object with the returned URLs, and the error message.
+ */
 export const refreshIllustrationUrls = async (
   keys: string[],
   errorMessage: Ref

@@ -34,7 +34,7 @@ if (sessionTale.value && !taleStore.generationInProgress) {
   isSaved.value = sessionTale.value.isSaved
   if (!checkUrlValidity(sessionTale.value.createdAt)) {
     const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
-    errorMessage.value = error
+    errorMessage.value = error.value
     sessionTale.value.urls = urls
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
     await safeCreate(sessionTale.value)
@@ -53,7 +53,7 @@ watch(
       const prompts = await trpc.openai.chat.mutate(promptStore.stream)
       promptStore.illustrationPrompts = extractPromptsForIllustrations(prompts)
     } catch (error) {
-      if (!(error instanceof Error)) throw error
+      if (!(error instanceof Error)) throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
       console.log(`Something went wrong while generating illustrations: ${error.message}`)
     }
   }
