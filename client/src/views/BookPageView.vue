@@ -41,21 +41,22 @@ const favorite = async (id: number) => {
       <h1>{{ tale.title }}</h1>
       <v-icon :icon="mdiTooltipEdit" :size="30" @click="router.push(`/edit/${tale.id}`)"></v-icon>
     </div>
-
-    <CarouselComponent v-slot="{ currentSlide }">
-      <CarouselSlide v-for="(page, i) in pages" :key="i">
-        <div v-show="i === currentSlide">
-          <img v-if="i === 2 || i === 4" :src="page" width="100%" alt="alt" />
-          <div v-else :class="{ title: i === 0 }">{{ page }}</div>
-        </div>
-      </CarouselSlide>
-    </CarouselComponent>
-    <ButtonPrimary
-      v-show="!isFavorite"
-      class="btn"
-      text="Mark as Favorite"
-      @click="() => favorite(tale.id)"
-    />
+    <div class="content">
+      <CarouselComponent v-slot="{ currentSlide }">
+        <CarouselSlide v-for="(page, i) in pages" :key="i">
+          <div class="page" v-show="i === currentSlide">
+            <img v-if="i === 2 || i === 4" :src="page" width="100%" alt="alt" />
+            <div v-else :class="{ title: i === 0 }">{{ page }}</div>
+          </div>
+        </CarouselSlide>
+      </CarouselComponent>
+      <ButtonPrimary
+        v-show="!isFavorite"
+        class="btn"
+        text="Mark as Favorite"
+        @click="() => favorite(tale.id)"
+      />
+    </div>
   </div>
 </template>
 <style scoped>
@@ -71,6 +72,7 @@ const favorite = async (id: number) => {
 .heading {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 h1 {
@@ -84,5 +86,35 @@ img {
 
 .title {
   font-size: 1.3rem;
+}
+
+@media (width >= 768px) {
+  .main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .heading {
+    justify-content: space-evenly;
+  }
+
+  .content {
+    width: 650px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  img {
+    width: 80%;
+  }
+
+  .page {
+    display: flex;
+    justify-content: center;
+  }
 }
 </style>

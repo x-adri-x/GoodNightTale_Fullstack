@@ -34,7 +34,7 @@ if (sessionTale.value && !taleStore.generationInProgress) {
   isSaved.value = sessionTale.value.isSaved
   if (!checkUrlValidity(sessionTale.value.createdAt)) {
     const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
-    errorMessage.value = error.value
+    // errorMessage.value = error.value
     sessionTale.value.urls = urls
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
     await safeCreate(sessionTale.value)
@@ -122,10 +122,10 @@ const handleClick = async () => {
         variant="error"
       />
     </div>
-    <div v-if="pages">
+    <div class="content" v-if="pages">
       <CarouselComponent v-slot="{ currentSlide }">
         <CarouselSlide v-for="(page, i) in pages" :key="i">
-          <div v-show="i === currentSlide">
+          <div class="page" v-show="i === currentSlide">
             <img v-if="i === 2 || i === 4" :src="page" width="100%" alt="alt" />
             <div v-else :class="{ title: i === 0 }">{{ page }}</div>
           </div>
@@ -162,5 +162,29 @@ img {
 
 .title {
   font-size: 1.3rem;
+}
+
+@media (width >= 768px) {
+  .main {
+    display: flex;
+    justify-content: center;
+  }
+
+  .content {
+    width: 650px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  img {
+    width: 80%;
+  }
+
+  .page {
+    display: flex;
+    justify-content: center;
+  }
 }
 </style>

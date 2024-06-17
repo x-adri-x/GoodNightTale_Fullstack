@@ -95,5 +95,17 @@ h2 {
   .tales {
     grid-template-columns: repeat(4, 1fr);
   }
+
+  .sheet {
+    width: 20vw;
+    height: 20vw;
+  }
+}
+
+@media (width >= 1055px) {
+  .favorites,
+  .tales {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 </style>

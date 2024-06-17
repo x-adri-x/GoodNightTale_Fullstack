@@ -82,6 +82,8 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
     await safeCreate(i)
   }
 })
+
+const updateIllustration = () => {}
 </script>
 <template>
   <div v-if="errorMessage">
@@ -98,7 +100,7 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
       :rules="[(value: string | any[]) => value.length >= 5]"
       :label="tale.title"
     ></v-text-field>
-    <v-skeleton-loader v-if="isLoading" type="button"></v-skeleton-loader>
+    <v-skeleton-loader v-if="isLoading" type="button" width="100%"></v-skeleton-loader>
     <ButtonPrimary
       v-else
       class="btn"
@@ -121,16 +123,18 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
           counter
           minlength="20"
         ></v-textarea>
+        <v-skeleton-loader v-if="isLoading" type="card" width="100%"></v-skeleton-loader>
+        <div v-else>
+          <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
 
-        <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
-        <v-skeleton-loader v-if="isLoading" type="button"></v-skeleton-loader>
-        <ButtonPrimary
-          v-else
-          class="btn"
-          text="Save changes"
-          :isDisabled="prompt.length < 20"
-          @click="() => updatePrompt(illustration.id, illustration.key)"
-        />
+          <ButtonPrimary
+            class="btn"
+            text="Save changes"
+            :isDisabled="prompt.length < 20"
+            @click="() => updatePrompt(illustration.id, illustration.key)"
+          />
+        </div>
+
         <v-divider></v-divider>
       </div>
     </div>
@@ -156,5 +160,11 @@ p {
   margin: 20px 0px;
   width: 100vw;
   height: 50px;
+}
+
+@media (width >= 768px) {
+  .main {
+    width: 80%;
+  }
 }
 </style>
