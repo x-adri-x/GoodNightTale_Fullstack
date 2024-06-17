@@ -102,7 +102,7 @@ h2 {
   }
 }
 
-@media (width >= 1055px) {
+@media (width >= 1450px) {
   .favorites,
   .tales {
     grid-template-columns: repeat(6, 1fr);

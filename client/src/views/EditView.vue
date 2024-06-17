@@ -13,13 +13,15 @@ import {
 
 const title = ref('')
 const prompt = ref('')
-
 const errorMessage = ref()
 const illustrations = ref()
 const tale = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
 const isLoading = ref(false)
+const btnText = ref('')
+const tempUrl = ref('')
+const editedIllustrationId = ref()
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
@@ -41,33 +43,23 @@ const updateTitle = async () => {
   }
 }
 
-const updatePrompt = async (illustrationId: any, key: string) => {
+const generateNewIllustration = async (id: string) => {
   isLoading.value = true
+  editedIllustrationId.value = id
+
   // DALL-E generates the images from the new prompts
-  const safeGenerateIllustrations = handleError(generateIllustrations, errorMessage)
-  const response = await safeGenerateIllustrations([prompt.value])
-  const generatedUrls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
-
-  // upload the new images to S3 with the same key
-  const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
-  await safeIllustrationUpload({ url: generatedUrls[0], key })
-
-  // grab the new url-s from S3
-  const { urls, error } = await refreshIllustrationUrls([key], errorMessage)
-  errorMessage.value = error.value
-
-  // update the illustration with the new prompt and url in the database
-  const updated = await trpc.illustration.update.mutate({
-    taleId,
-    id: illustrationId,
-    prompt: prompt.value,
-    url: urls[0],
-  })
-
-  const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === illustrationId)
-  if (index !== -1) {
-    illustrations.value[index] = updated
+  try {
+    const response = await generateIllustrations([prompt.value])
+    const generatedUrl = response.map((r: { data: { url: string }[] }) => r.data[0].url)
+    tempUrl.value = generatedUrl[0]
+    isLoading.value = false
+  } catch (error) {
+    errorMessage.value = `Something went wrong while generating the image: ${error}`
   }
+  // const safeGenerateIllustrations = handleError(generateIllustrations, errorMessage)
+  // const response = await safeGenerateIllustrations([prompt.value])
+  // const generatedUrl = response.map((r: { data: { url: string }[] }) => r.data[0].url)
+  // tempUrl.value = generatedUrl[0]
   isLoading.value = false
 }
 
@@ -83,7 +75,34 @@ illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any })
   }
 })
 
-const updateIllustration = () => {}
+const updateIllustration = async (illustrationId: any, key: string) => {
+  isLoading.value = true
+  // upload the new images to S3 with the same key
+  const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
+  await safeIllustrationUpload({ url: tempUrl.value, key })
+
+  // grab the new url-s from S3
+  const { urls, error } = await refreshIllustrationUrls([key], errorMessage)
+  // errorMessage.value = error.value
+
+  // update the illustration with the new prompt and url in the database
+  const updated = await trpc.illustration.update.mutate({
+    taleId,
+    id: illustrationId,
+    prompt: prompt.value,
+    url: urls[0],
+  })
+
+  const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === illustrationId)
+  if (index !== -1) {
+    illustrations.value[index] = updated
+  }
+  isLoading.value = false
+  discardChanges()
+}
+
+const discardChanges = () =>
+  [tempUrl, btnText, prompt, editedIllustrationId].forEach((ref) => (ref.value = ''))
 </script>
 <template>
   <div v-if="errorMessage">
@@ -100,7 +119,7 @@ const updateIllustration = () => {}
       :rules="[(value: string | any[]) => value.length >= 5]"
       :label="tale.title"
     ></v-text-field>
-    <v-skeleton-loader v-if="isLoading" type="button" width="100%"></v-skeleton-loader>
+    <v-skeleton-loader v-if="isLoading && title" type="button" width="100%"></v-skeleton-loader>
     <ButtonPrimary
       v-else
       class="btn"
@@ -123,16 +142,40 @@ const updateIllustration = () => {}
           counter
           minlength="20"
         ></v-textarea>
-        <v-skeleton-loader v-if="isLoading" type="card" width="100%"></v-skeleton-loader>
+        <v-skeleton-loader
+          v-if="isLoading && illustration.id === editedIllustrationId"
+          type="card"
+          width="100%"
+        ></v-skeleton-loader>
         <div v-else>
-          <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
+          <img
+            :src="tempUrl && illustration.id === editedIllustrationId ? tempUrl : illustration.url"
+            width="100%"
+            :alt="illustration.prompt"
+          />
+          <ButtonPrimary
+            v-if="tempUrl"
+            class="btn"
+            text="Save illustration"
+            :isDisabled="prompt.length < 20"
+            @click="() => updateIllustration(illustration.id, illustration.key)"
+          />
+          <ButtonPrimary
+            v-else
+            class="btn"
+            text="Generate new image"
+            :isDisabled="prompt.length < 20"
+            @click="() => generateNewIllustration(illustration.id)"
+          />
 
           <ButtonPrimary
+            v-if="tempUrl"
             class="btn"
-            text="Save changes"
+            text="Discard changes"
             :isDisabled="prompt.length < 20"
-            @click="() => updatePrompt(illustration.id, illustration.key)"
+            @click="discardChanges"
           />
+          <div></div>
         </div>
 
         <v-divider></v-divider>

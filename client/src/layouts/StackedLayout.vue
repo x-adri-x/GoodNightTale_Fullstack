@@ -41,7 +41,7 @@ const show = ref(false)
       <template v-slot:prepend>
         <v-app-bar-nav-icon @click="show = !show"></v-app-bar-nav-icon>
       </template>
-      <v-app-bar-title>Welcome ...</v-app-bar-title>
+      <v-app-bar-title>Good Night Tale</v-app-bar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="show">
       <v-list-item

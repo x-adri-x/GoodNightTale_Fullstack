@@ -47,7 +47,8 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
       return await fn(...args)
     } catch (error) {
       if (!(error instanceof Error)) throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
-      if (error instanceof TRPCError || error instanceof TRPCClientError) console.log('threw me')
+      if (error instanceof TRPCError || error instanceof TRPCClientError)
+        errorRef.value = error.message
       errorRef.value = error.message
     }
   }
