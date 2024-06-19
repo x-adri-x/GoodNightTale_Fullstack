@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { trpc } from '@/trpc'
-import { type Tale } from '@mono/server/src/shared/entities'
+import { type Tale } from '@goodnighttale/server/src/shared/entities'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { handleError } from '@/utils/helpers'

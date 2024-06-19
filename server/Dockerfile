@@ -1,4 +1,4 @@
-FROM node:20.12-alpine AS builder
+FROM --platform=linux/amd64 node:20.12-alpine AS builder
 WORKDIR /app
 COPY ../package*.json .
 COPY client/package*.json client/

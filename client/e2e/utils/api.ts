@@ -1,6 +1,6 @@
 import { apiOrigin, apiPath } from './config'
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client'
-import type { AppRouter } from '@mono/server/src/shared/trpc'
+import type { AppRouter } from '@goodnighttale/server/src/shared/trpc'
 import { fakeUser } from './fakeData'
 import type { Page } from '@playwright/test'
 import superjson from 'superjson'

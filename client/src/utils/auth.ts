@@ -1,4 +1,4 @@
-import type { AuthUser } from '@mono/server/src/shared/entities'
+import type { AuthUser } from '@goodnighttale/server/src/shared/entities'
 
 const TOKEN_KEY = 'token'
 

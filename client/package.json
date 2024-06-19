@@ -1,5 +1,5 @@
 {
-  "name": "@mono/client",
+  "name": "@goodnighttale/client",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -30,7 +30,7 @@
     "vuetify": "^3.6.8"
   },
   "devDependencies": {
-    "@mono/server": "^1.0.0",
+    "@goodnighttale/server": "^1.0.0",
     "@playwright/test": "^1.42.1",
     "@rushstack/eslint-patch": "^1.10.1",
     "@tsconfig/node18": "^18.2.4",
