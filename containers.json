@@ -1,0 +1,28 @@
+{
+  "client": {
+    "image": ":goodnight-tale.client-1.7",
+    "command": [],
+    "ports": {
+      "80": "HTTP"
+    },
+    "environment": {
+      "API_PROXY_PASS": "http://localhost:3000"
+    }
+  },
+  "server": {
+    "image": ":goodnight-tale.server-1.9",
+    "ports": {
+      "3000": "HTTP"
+    },
+    "environment": {
+      "NODE_ENV": "production",
+      "DB_SSL": "true",
+      "DB_SYNC": "true",
+      "DB_HOST": "ep-old-wood-a2z9p3w5.eu-central-1.aws.neon.tech",
+      "DB_NAME": "goodnighttale",
+      "DB_USER": "goodnighttale_owner",
+      "DB_PASSWORD": "yjEX16CegDOU",
+      "TOKEN_KEY": "2d8583120e2920c79da68650747c39a627fc896f5570def92ab1045a05ff"
+    }
+  }
+}
