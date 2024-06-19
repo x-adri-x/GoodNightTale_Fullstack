@@ -178,12 +178,12 @@ jobs:
                 "DB_NAME": "${{ secrets.PROD_DB_NAME }}",
                 "DB_USER": "${{ secrets.PROD_DB_USER }}",
                 "DB_PASSWORD": "${{ secrets.PROD_DB_PASSWORD }}",
-                "TOKEN_KEY":"${{ env.TOKEN_KEY }}",
-                "OPENAI_API_KEY":"${{ env.OPENAI_API_KEY }}",
+                "TOKEN_KEY":"${{ vars.TOKEN_KEY }}",
+                "OPENAI_API_KEY":"${{ vars.OPENAI_API_KEY }}",
                 "S3_AWS_ACCESS_KEY_ID":"${{ secrets.S3_AWS_ACCESS_KEY_ID }}",
                 "S3_AWS_SECRET_ACCESS_KEY":"${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}",
-                "REGION":"${{ env.REGION }}",
-                "BUCKET":"${{env.BUCKET}}"
+                "REGION":"${{ vars.REGION }}",
+                "BUCKET":"${{vars.BUCKET}}"
               }
             }
           }' > containers.json
