@@ -1,5 +1,6 @@
 import { generateRandomWords, getRandomWords } from '../helpers'
-import constants from '@/constants/constants'
+
+const randomWordsStorageKey = 'random'
 
 describe('random words generation', () => {
   it('should return exactly 10 words', () => {
@@ -21,7 +22,7 @@ describe('random words generation', () => {
 
   it('should save words into localStorage', () => {
     const words = generateRandomWords()
-    const storage = localStorage.getItem(constants.randomWordsStorageKey)
+    const storage = localStorage.getItem(randomWordsStorageKey)
     expect(JSON.parse(storage!)).toEqual(words)
   })
 })
@@ -35,10 +36,10 @@ describe('get random words from localStorage', () => {
 
   it('should generate a new list of words if localStorage is empty', () => {
     const first = generateRandomWords()
-    localStorage.removeItem(constants.randomWordsStorageKey)
-    expect(localStorage.getItem(constants.randomWordsStorageKey)).toBeNull()
+    localStorage.removeItem(randomWordsStorageKey)
+    expect(localStorage.getItem(randomWordsStorageKey)).toBeNull()
     const second = getRandomWords()
-    const storage = localStorage.getItem(constants.randomWordsStorageKey)
+    const storage = localStorage.getItem(randomWordsStorageKey)
     expect(JSON.parse(storage!)).not.toEqual(first)
     expect(JSON.parse(storage!)).toEqual(second)
   })

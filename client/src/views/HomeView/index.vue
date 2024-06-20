@@ -4,12 +4,15 @@ import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { mdiCheckCircle } from '@mdi/js'
 import { generateRandomWords, getRandomWords } from './helpers'
-import constants from '@/constants/constants'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import useErrorMessage from '@/composables/useErrorMessage'
 import useTaleStore from '@/stores/tale'
 import usePromptStore from '@/stores/prompt'
+
+const inputInfoMessage = 'Please add 5 keywords of your choice or choose from the provided list.'
+const duplicateWordWarning = 'You already have that word selected.'
+const maximumKeywordsReachedWarning = 'You can only use 5 keywords to generate your tale.'
 
 const randomWords = ref(getRandomWords())
 const keyword: Ref<string> = ref('')
@@ -37,10 +40,10 @@ const handleChipClose = (text: string) => {
 const selectRandomWord = (word: string) => {
   if (keywords.value.includes(word)) {
     showWarning.value = true
-    warning.value = constants.duplicateWordWarning
+    warning.value = duplicateWordWarning
   } else if (keywords.value.length >= 5) {
     showWarning.value = true
-    warning.value = constants.maximumKeywordsReachedWarning
+    warning.value = maximumKeywordsReachedWarning
   } else {
     keywords.value.push(word)
     showWarning.value = false
@@ -55,9 +58,13 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
     content: `The ${keywords.value.length} words are: ${keywords.value.slice(0).join(', ')}.`,
   })
   taleStore.generationInProgress = true
-  const tale = await trpc.openai.chat.mutate(promptStore.stream)
-  taleStore.tale = tale
-  taleStore.keywords = keywords.value
+  try {
+    const tale = await trpc.openai.chat.mutate(promptStore.stream)
+    taleStore.tale = tale
+    taleStore.keywords = keywords.value
+  } catch (error) {
+    taleStore.isTaleRequestFailed = true
+  }
 })
 </script>
 
@@ -65,12 +72,7 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
   <div class="main">
     <h1 aria-label="Let's get started" data-testid="home-heading">Let's get started!</h1>
     <div>
-      <AlertToast
-        closable
-        :text="constants.inputInfoMessage"
-        variant="info"
-        data-test="info-toast"
-      />
+      <AlertToast closable :text="inputInfoMessage" variant="info" data-test="info-toast" />
     </div>
     <div v-if="errorMessage">
       <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />

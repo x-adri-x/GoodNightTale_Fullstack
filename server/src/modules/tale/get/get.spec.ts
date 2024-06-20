@@ -4,7 +4,6 @@ import { createCallerFactory } from '@server/trpc'
 import { authContext } from '@tests/utils/context'
 import { Tale } from '@server/entities'
 import taleRouter from '..'
-import { TRPCError } from '@trpc/server'
 
 const createCaller = createCallerFactory(taleRouter)
 

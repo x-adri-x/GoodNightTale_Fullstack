@@ -7,7 +7,8 @@ import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { mdiTooltipEdit } from '@mdi/js'
 import { useRouter, useRoute } from 'vue-router'
 import { handleError } from '@/utils/helpers'
-import constants from '@/constants/constants'
+
+const illustrationIndexes = '1,3'
 
 const router = useRouter()
 const errorMessage = ref()
@@ -26,7 +27,7 @@ const pages: string[] = []
 pages.push(tale.value.title)
 const tmpBody = tale.value.body.slice()
 
-constants.illustrationIndexes.split(',').forEach((index, i) => {
+illustrationIndexes.split(',').forEach((index, i) => {
   tmpBody.splice(parseInt(index, 10), 0, urls[i]!)
 })
 pages.push(...tmpBody)

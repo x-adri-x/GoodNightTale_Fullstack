@@ -9,7 +9,7 @@ test.describe.serial('signup and login sequence', () => {
     // Given (ARRANGE)
     await page.goto('/signup')
     const successMessage = page.getByTestId('successMessage')
-    await expect(successMessage).toBeHidden() // sanity check
+    await expect(successMessage).toBeHidden()
 
     // When (ACT)
     const form = page.getByRole('form')
@@ -23,8 +23,6 @@ test.describe.serial('signup and login sequence', () => {
 
   test('visitor can not access home page before login', async ({ page }) => {
     await page.goto('/home')
-
-    // user is redirected to login page
     await page.waitForURL('/login')
   })
 
@@ -42,35 +40,28 @@ test.describe.serial('signup and login sequence', () => {
 
     // Then (ASSERT)
     await expect(heading).toBeVisible()
-
-    // Refresh the page to make sure that the user is still logged in.
     await page.reload()
     await expect(heading).toBeVisible()
   })
 })
 
 // Running logout test in isolation.
-test.fixme('visitor can logout', async ({ page }) => {
+test('visitor can logout', async ({ page }) => {
   // Given (ARRANGE)
   await loginNewUser(page)
 
   await page.goto('/home')
-  const logoutLink = page.getByRole('link', { name: 'Logout' })
+  const logoutLink = page.getByText('Logout')
 
   // When (ACT)
   await logoutLink.click()
 
   // Then (ASSERT)
   await expect(logoutLink).toBeHidden()
-
-  // Ensure that we are redirected to the login page.
-  // This test would break if we changed the login page URL,
-  // but this is a signifcant change that we would want to
-  // be aware of.
-  await expect(page).toHaveURL('/login')
+  await expect(page).toHaveURL('/')
 
   // Refresh the page to make sure that the user is still logged out.
-  await page.goto('/dashboard')
+  await page.goto('/home')
   await expect(logoutLink).toBeHidden()
   await expect(page).toHaveURL('/login')
 })

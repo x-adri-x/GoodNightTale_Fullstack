@@ -11,6 +11,9 @@ import {
   refreshIllustrationUrls,
 } from '@/utils/helpers'
 
+const illustrationRequestErrorMessage =
+  'Something went wrong when trying to generate images for your tale.'
+
 const title = ref('')
 const prompt = ref('')
 const errorMessage = ref()
@@ -54,12 +57,8 @@ const generateNewIllustration = async (id: string) => {
     tempUrl.value = generatedUrl[0]
     isLoading.value = false
   } catch (error) {
-    errorMessage.value = `Something went wrong while generating the image: ${error}`
+    errorMessage.value = illustrationRequestErrorMessage
   }
-  // const safeGenerateIllustrations = handleError(generateIllustrations, errorMessage)
-  // const response = await safeGenerateIllustrations([prompt.value])
-  // const generatedUrl = response.map((r: { data: { url: string }[] }) => r.data[0].url)
-  // tempUrl.value = generatedUrl[0]
   isLoading.value = false
 }
 
@@ -83,7 +82,7 @@ const updateIllustration = async (illustrationId: any, key: string) => {
 
   // grab the new url-s from S3
   const { urls, error } = await refreshIllustrationUrls([key], errorMessage)
-  // errorMessage.value = error.value
+  errorMessage.value = error.value
 
   // update the illustration with the new prompt and url in the database
   const updated = await trpc.illustration.update.mutate({

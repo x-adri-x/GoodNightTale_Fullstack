@@ -9,7 +9,6 @@ const errorMessage = ref()
 const safeGetTales = handleError(trpc.tale.find.query, errorMessage)
 const tales = await safeGetTales()
 const favorites = tales.filter((t: Tale) => t.isFavorite)
-// const notFavorites = tales.filter((t: Tale) => !t.isFavorite)
 
 const router = useRouter()
 </script>
@@ -62,7 +61,7 @@ const router = useRouter()
 }
 
 p {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 500;
 }
 
@@ -71,11 +70,12 @@ p {
   height: 40vw;
   max-width: 200px;
   max-height: 200px;
+  display: flex;
   text-align: center;
   padding: 15px;
   margin: 20px 0px;
-  color: #ebebeba3;
-  background: #424242;
+  color: var(--vt-c-black-mute);
+  background: #eebbee;
   cursor: pointer;
 }
 

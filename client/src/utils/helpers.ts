@@ -1,9 +1,10 @@
-import constants from '@/constants/constants'
 import { trpc } from '@/trpc'
 import type { SessionInsert } from '@goodnighttale/server/src/shared/entities'
 import { TRPCClientError } from '@trpc/client'
 import { TRPCError } from '@trpc/server'
 import type { Ref } from 'vue'
+
+const illustrationIndexes = '1,3'
 
 export const createSessionObject = (text: string) => {
   const tmp = text
@@ -34,7 +35,7 @@ export const createPages = (tale: SessionInsert): string[] => {
   const tmpUrls = tale.urls.slice()
   const pages = []
   pages.push(tale.title)
-  constants.illustrationIndexes.split(',').forEach((index, i) => {
+  illustrationIndexes.split(',').forEach((index, i) => {
     tmpBody.splice(parseInt(index, 10), 0, tmpUrls[i]!)
   })
   pages.push(...tmpBody)
@@ -46,12 +47,16 @@ export const handleError = <Args extends any[]>(fn: Function, errorRef: Ref) => 
     try {
       return await fn(...args)
     } catch (error) {
+      console.log('ayyy')
       if (!(error instanceof Error)) {
+        console.log('ayyy ayyyy')
         throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
       }
       if (error instanceof TRPCError || error instanceof TRPCClientError) {
+        console.log('trpc')
         errorRef.value = error.message
       }
+      console.log('default')
       errorRef.value = error.message
     }
   }

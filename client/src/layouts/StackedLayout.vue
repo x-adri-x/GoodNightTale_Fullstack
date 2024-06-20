@@ -12,18 +12,18 @@ const { links } = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-
-function logoutUser() {
-  logout()
-  router.push({ name: 'Landing' })
-}
-
+const show = ref(window.innerWidth > 768 ? true : false)
 const navigation = computed(() =>
   links.map((item) => ({
     ...item,
     isActive: route.name === item.name,
   }))
 )
+
+function logoutUser() {
+  logout()
+  router.push({ name: 'Landing' })
+}
 
 const handleClick = (name: string) => {
   if (name === 'Logout') {
@@ -32,7 +32,6 @@ const handleClick = (name: string) => {
     router.push({ name: `${name}` })
   }
 }
-const show = ref(false)
 </script>
 
 <template>
