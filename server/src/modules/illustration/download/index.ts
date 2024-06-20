@@ -28,7 +28,7 @@ export default authenticatedProcedure
       return url
     } catch (error) {
       if (!(error instanceof Error)) {
-        throw new Error(`Non-Error thrown: ${JSON.stringify(error)}`)
+        throw error
       } else {
         throw new TRPCError({
           code: 'BAD_REQUEST',
