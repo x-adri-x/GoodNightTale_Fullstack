@@ -5,7 +5,6 @@ import { fakeUser } from 'utils/fakeData'
 const { email, password } = fakeUser()
 
 test.describe.serial('signup and login sequence', () => {
-  test.use({ colorScheme: 'dark' })
   test('visitor can signup', async ({ page }) => {
     // Given (ARRANGE)
     await page.goto('/signup')
@@ -17,6 +16,7 @@ test.describe.serial('signup and login sequence', () => {
     await form.locator('input[type="email"]').fill(email)
     await form.locator('input[type="password"]').fill(password)
     await form.locator('button[type="submit"]').click()
+    await page.waitForTimeout(3000)
 
     // Then (ASSERT)
     const loginMessage = page.getByRole('link', { name: 'Go to the login page' })
