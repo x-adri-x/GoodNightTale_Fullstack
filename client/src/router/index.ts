@@ -80,6 +80,11 @@ const router = createRouter({
       name: 'Landing',
       component: () => import('../views/LandingView.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'Not Found',
+      component: () => import('../views/404.vue'),
+    },
   ],
 })
 
