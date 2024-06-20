@@ -3,91 +3,91 @@ name: Test, Build and Deploy
 on: push
 
 jobs:
-  # test:
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     # variables for our front-end tests, see client/src/config.ts
-  #     VITE_API_ORIGIN: ${{ vars.API_ORIGIN }}
-  #     VITE_API_PATH: /api/v1/trpc
-  #   services:
-  #     # spin up a database for this job
-  #     postgres:
-  #       image: postgres:16.1-alpine
-  #       env:
-  #         POSTGRES_USER: adrienn
-  #         POSTGRES_PASSWORD: turing
-  #         POSTGRES_DB: testdb
-  #       ports:
-  #         # We will need to connect to it somehow. We will use the default
-  #         # Postgres port 5432.
-  #         - 5432:5432
-  #   steps:
-  #     - name: Check out repository
-  #       uses: actions/checkout@v4
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # variables for our front-end tests, see client/src/config.ts
+      VITE_API_ORIGIN: ${{ vars.API_ORIGIN }}
+      VITE_API_PATH: /api/v1/trpc
+    services:
+      # spin up a database for this job
+      postgres:
+        image: postgres:16.1-alpine
+        env:
+          POSTGRES_USER: adrienn
+          POSTGRES_PASSWORD: turing
+          POSTGRES_DB: testdb
+        ports:
+          # We will need to connect to it somehow. We will use the default
+          # Postgres port 5432.
+          - 5432:5432
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18.19.0'
-  #         cache: 'npm'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.19.0'
+          cache: 'npm'
 
-  #     - name: Install dependencies
-  #       run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  #     - name: Type check server
-  #       run: npm run typecheck -w=server
+      - name: Type check server
+        run: npm run typecheck -w=server
 
-  #     - name: Type check client
-  #       run: npm run typecheck -w=client
+      - name: Type check client
+        run: npm run typecheck -w=client
 
-  #     - name: Lint client
-  #       run: npm run lint -w=client
+      - name: Lint client
+        run: npm run lint -w=client
 
-  #     - name: Lint server
-  #       run: npm run lint -w=server
+      - name: Lint server
+        run: npm run lint -w=server
 
-  #     - name: Run server tests
-  #       run: npm run test -w=server
-  #       env:
-  #         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  #         TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
+      - name: Run server tests
+        run: npm run test -w=server
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
 
-  #     - name: Run client unit tests
-  #       run: npm run test:unit -w=client
-  #     - name: Install Playwright Browsers
-  #       run: npx playwright install --with-deps chromium
-  #     - name: Start server for E2E tests
-  #       run: npm run start:tsx -w=server &
-  #       env:
-  #         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  #         DB_USER: adrienn
-  #         DB_PASSWORD: turing
-  #         DB_NAME: testdb
-  #         DB_HOST: localhost
-  #         TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
+      - name: Run client unit tests
+        run: npm run test:unit -w=client
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+      - name: Start server for E2E tests
+        run: npm run start:tsx -w=server &
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DB_USER: adrienn
+          DB_PASSWORD: turing
+          DB_NAME: testdb
+          DB_HOST: localhost
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
 
-  #         # port to start the server on
-  #         PORT: 3000
-  #     - name: Build front end for E2E tests
-  #       run: npm run build -w=client
-  #     - name: API server health check
-  #       uses: jtalk/url-health-check-action@v4
-  #       with:
-  #         url: http://localhost:3000/api/health
-  #         max-attempts: 5
-  #         retry-delay: 5s
+          # port to start the server on
+          PORT: 3000
+      - name: Build front end for E2E tests
+        run: npm run build -w=client
+      - name: API server health check
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://localhost:3000/api/health
+          max-attempts: 5
+          retry-delay: 5s
 
-  #     - name: Test client E2E
-  #       run: npm run test:e2e -w=client
-  #     - uses: actions/upload-artifact@v4
-  #       if: always()
-  #       with:
-  #         name: playwright-report
-  #         path: client/playwright-report/
-  #         retention-days: 7
+      - name: Test client E2E
+        run: npm run test:e2e -w=client
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: client/playwright-report/
+          retention-days: 7
 
   build-deploy:
-    # needs: test
+    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     env:

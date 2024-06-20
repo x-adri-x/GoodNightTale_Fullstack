@@ -62,7 +62,7 @@ const router = useRouter()
 }
 
 p {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 500;
 }
 
@@ -74,8 +74,9 @@ p {
   text-align: center;
   padding: 15px;
   margin: 20px 0px;
-  color: #0d0c0f;
-  background: linear-gradient(70deg, rgba(130, 144, 147, 1) 0%, rgba(115, 144, 152, 1) 100%);
+  color: #ebebeba3;
+  background: #424242;
+  cursor: pointer;
 }
 
 h1 {

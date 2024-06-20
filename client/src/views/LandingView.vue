@@ -72,7 +72,6 @@ nav {
     max-width: 800px;
   }
   .btn {
-    background: linear-gradient(180deg, rgba(238, 175, 165, 1) 0%, rgba(115, 144, 152, 1) 100%);
     width: 100%;
     height: 80px;
     margin: 10px 0px;

@@ -132,6 +132,7 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
   padding: 2rem;
   width: 100%;
   justify-content: flex-start;
+  max-width: 650px;
 }
 
 h1 {

@@ -137,9 +137,9 @@ const handleClick = async () => {
         @click="handleClick"
       />
     </div>
-    <div v-else-if="taleStore.generationInProgress">
+    <div v-else-if="taleStore.generationInProgress" class="loader-container">
       <v-skeleton-loader type="text"></v-skeleton-loader>
-      <p>Your bedtime story is being generated.</p>
+      <p class="message">Your bedtime story is being generated. Please hang in there ...</p>
     </div>
   </div>
 </template>
@@ -147,6 +147,15 @@ const handleClick = async () => {
 .main {
   padding: 2rem;
   width: 100%;
+}
+
+.loader-container {
+  text-align: center;
+}
+
+.message {
+  font-size: 1.2rem;
+  margin: 20px 0px;
 }
 
 .btn {

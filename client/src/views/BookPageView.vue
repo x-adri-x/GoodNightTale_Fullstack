@@ -18,6 +18,7 @@ const isFavorite = ref(false)
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
+if (errorMessage.value === 'Tale was not found') router.push({ name: 'Not Found' })
 
 const urls = tale.value.illustrations.map((i: { url: any }) => i.url)
 
