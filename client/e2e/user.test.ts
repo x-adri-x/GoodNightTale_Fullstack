@@ -3,26 +3,23 @@ import { loginNewUser } from 'utils/api'
 import { fakeUser } from 'utils/fakeData'
 
 const { email, password } = fakeUser()
+test.use({ colorScheme: 'dark' })
 
 test.describe.serial('signup and login sequence', () => {
   test('visitor can signup', async ({ page }) => {
     // Given (ARRANGE)
     await page.goto('/signup')
-    // const successMessage = page.getByTestId('successMessage')
-    // await expect(successMessage).toBeHidden()
-    console.log(email, password)
+    const successMessage = page.getByTestId('successMessage')
+    await expect(successMessage).toBeHidden()
+
     // When (ACT)
     const form = page.getByRole('form')
     await form.locator('input[type="email"]').fill(email)
     await form.locator('input[type="password"]').fill(password)
     await form.locator('button[type="submit"]').click()
-    await page.waitForTimeout(3000)
 
     // Then (ASSERT)
-    const loginMessage = page.getByRole('link', { name: 'Go to the login page' })
-    await expect(loginMessage).toBeVisible()
-    // const successMessage = page.getByTestId('successMessage')
-    // await expect(successMessage).toBeVisible()
+    await expect(successMessage).toBeVisible()
   })
 
   test('visitor can not access home page before login', async ({ page }) => {
