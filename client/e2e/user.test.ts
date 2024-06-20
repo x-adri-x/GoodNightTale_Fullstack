@@ -20,8 +20,10 @@ test.describe.serial('signup and login sequence', () => {
     await form.locator('button[type="submit"]').click()
 
     // Then (ASSERT)
-    const successMessage = page.getByTestId('successMessage')
-    await expect(successMessage).toBeVisible()
+    const loginMessage = page.getByRole('link', { name: 'Go to the login page' })
+    await expect(loginMessage).toBeVisible()
+    // const successMessage = page.getByTestId('successMessage')
+    // await expect(successMessage).toBeVisible()
   })
 
   test('visitor can not access home page before login', async ({ page }) => {
