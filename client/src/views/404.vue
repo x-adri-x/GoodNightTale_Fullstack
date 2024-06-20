@@ -2,7 +2,7 @@
   <div class="main">
     <h1>Seems you got lost.</h1>
     <a href="/home">Go to home page.</a>
-    <img src="../assets/panda.jpg" />
+    <img src="../assets/panda.jpg" alt="sad panda" />
   </div>
 </template>
 <style scoped>

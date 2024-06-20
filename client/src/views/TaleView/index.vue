@@ -138,7 +138,12 @@ const handleClick = async () => {
       <CarouselComponent v-slot="{ currentSlide }">
         <CarouselSlide v-for="(page, i) in pages" :key="i">
           <div class="page" v-show="i === currentSlide">
-            <img v-if="i === 2 || i === 4" :src="page" width="100%" alt="alt" />
+            <img
+              v-if="i === 2 || i === 4"
+              :src="page"
+              width="100%"
+              :alt="sessionTale.value.prompts[i]"
+            />
             <div v-else :class="{ title: i === 0 }">{{ page }}</div>
           </div>
         </CarouselSlide>

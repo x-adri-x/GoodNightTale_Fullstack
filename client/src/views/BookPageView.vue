@@ -21,6 +21,7 @@ const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
 if (errorMessage.value === 'Tale was not found') router.push({ name: 'Not Found' })
 
+const prompts = tale.value.illustrations.map((i: { prompt: any }) => i.prompt)
 const urls = tale.value.illustrations.map((i: { url: any }) => i.url)
 
 const pages: string[] = []
@@ -47,7 +48,7 @@ const favorite = async (id: number) => {
       <CarouselComponent v-slot="{ currentSlide }">
         <CarouselSlide v-for="(page, i) in pages" :key="i">
           <div class="page" v-show="i === currentSlide">
-            <img v-if="i === 2 || i === 4" :src="page" width="100%" alt="alt" />
+            <img v-if="i === 2 || i === 4" :src="page" width="100%" :alt="prompts[i]" />
             <div v-else :class="{ title: i === 0 }">{{ page }}</div>
           </div>
         </CarouselSlide>

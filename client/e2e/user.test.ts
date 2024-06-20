@@ -4,6 +4,8 @@ import { fakeUser } from 'utils/fakeData'
 
 const { email, password } = fakeUser()
 
+test.use({ colorScheme: 'dark' })
+
 test.describe.serial('signup and login sequence', () => {
   test('visitor can signup', async ({ page }) => {
     // Given (ARRANGE)

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 import { trpc } from '@/trpc'
+import { useRoute, useRouter } from 'vue-router'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import {
@@ -25,12 +25,12 @@ const isLoading = ref(false)
 const btnText = ref('')
 const tempUrl = ref('')
 const editedIllustrationId = ref()
+const router = useRouter()
 
 const safeGet = handleError(trpc.tale.get.query, errorMessage)
 tale.value = await safeGet(taleId)
 if (errorMessage.value === 'Tale not found') {
-  // TODO: handle when no tale is found with the id in params
-  // redirect to 404 page
+  router.push({ name: 'Not Found' })
 }
 
 const updateTitle = async () => {
@@ -64,7 +64,6 @@ const generateNewIllustration = async (id: string) => {
 
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
 illustrations.value = await getIllustrations({ taleId })
-
 illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
   if (!checkUrlValidity(i.createdAt)) {
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
