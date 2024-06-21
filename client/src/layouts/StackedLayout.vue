@@ -35,10 +35,10 @@ const handleClick = (name: string) => {
 </script>
 
 <template>
-  <v-layout>
+  <v-layout class="main">
     <v-app-bar>
       <template v-slot:prepend>
-        <v-app-bar-nav-icon @click="show = !show"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon @click="show = !show" alt="hamburger menu"></v-app-bar-nav-icon>
       </template>
       <v-app-bar-title>Good Night Tale</v-app-bar-title>
     </v-app-bar>

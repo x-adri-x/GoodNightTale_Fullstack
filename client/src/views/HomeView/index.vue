@@ -69,71 +69,75 @@ const [generateTale, errorMessage] = useErrorMessage(async () => {
 </script>
 
 <template>
-  <div class="main">
-    <h1 aria-label="Let's get started" data-testid="home-heading">Let's get started!</h1>
-    <div>
-      <AlertToast closable :text="inputInfoMessage" variant="info" data-test="info-toast" />
-    </div>
-    <div v-if="errorMessage">
-      <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
-    </div>
+  <div class="container">
+    <div class="main">
+      <h1 aria-label="Let's get started" data-testid="home-heading">Let's get started!</h1>
+      <div>
+        <AlertToast closable :text="inputInfoMessage" variant="info" data-test="info-toast" />
+      </div>
+      <div v-if="errorMessage">
+        <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
+      </div>
 
-    <v-form @submit.prevent="handleClick">
-      <v-text-field
-        v-model="keyword"
-        theme="primary-darken-1"
-        :disabled="keywords.length >= 5"
-        :rules="[(value) => value.length <= 9]"
-        label="Keyword"
-        counter
-        maxlength="9"
-      ></v-text-field>
-    </v-form>
+      <v-form @submit.prevent="handleClick">
+        <v-text-field
+          v-model="keyword"
+          theme="primary-darken-1"
+          :disabled="keywords.length >= 5"
+          :rules="[(value) => value.length <= 9]"
+          label="Keyword"
+          counter
+          maxlength="9"
+        ></v-text-field>
+      </v-form>
 
-    <AlertToast v-if="showWarning" :text="warning" variant="warning"></AlertToast>
-    <div class="random-chip-container" data-test="selected">
-      <v-chip
-        v-for="keyword in keywords"
-        :key="keyword"
-        class="chip"
-        closable
-        @click:close="handleChipClose(keyword)"
-        >{{ keyword }}</v-chip
+      <AlertToast v-if="showWarning" :text="warning" variant="warning"></AlertToast>
+      <div class="random-chip-container" data-test="selected">
+        <v-chip
+          v-for="keyword in keywords"
+          :key="keyword"
+          class="chip"
+          closable
+          @click:close="handleChipClose(keyword)"
+          >{{ keyword }}</v-chip
+        >
+      </div>
+      <p
+        class="link"
+        data-test="regenerate-words"
+        @click="randomWords = generateRandomWords()"
+        @keyup="randomWords = generateRandomWords()"
       >
+        Regenerate random list
+      </p>
+      <div class="random-chip-container" data-test="chip-container">
+        <v-chip
+          v-for="(word, index) in randomWords"
+          :key="index"
+          class="chip"
+          :prepend-icon="keywords.includes(word) ? mdiCheckCircle : undefined"
+          @click="selectRandomWord(word)"
+          >{{ word }}</v-chip
+        >
+      </div>
+      <ButtonPrimary
+        text="Generate Tale"
+        class="btn"
+        :isDisabled="keywords.length < 5"
+        @click="generateTale"
+      />
     </div>
-    <p
-      class="link"
-      data-test="regenerate-words"
-      @click="randomWords = generateRandomWords()"
-      @keyup="randomWords = generateRandomWords()"
-    >
-      Regenerate random list
-    </p>
-    <div class="random-chip-container" data-test="chip-container">
-      <v-chip
-        v-for="(word, index) in randomWords"
-        :key="index"
-        class="chip"
-        :prepend-icon="keywords.includes(word) ? mdiCheckCircle : undefined"
-        @click="selectRandomWord(word)"
-        >{{ word }}</v-chip
-      >
-    </div>
-    <ButtonPrimary
-      text="Generate Tale"
-      class="btn"
-      :isDisabled="keywords.length < 5"
-      @click="generateTale"
-    />
   </div>
 </template>
 <style scoped>
-.main {
+.container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+.main {
   padding: 2rem;
   width: 100%;
-  justify-content: flex-start;
   max-width: 650px;
 }
 
