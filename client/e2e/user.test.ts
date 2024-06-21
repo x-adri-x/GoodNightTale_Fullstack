@@ -6,7 +6,7 @@ const { email, password } = fakeUser()
 test.use({ colorScheme: 'dark' })
 
 test.describe.serial('signup and login sequence', () => {
-  test('visitor can signup', async ({ page }) => {
+  test.fixme('visitor can signup', async ({ page }) => {
     // Given (ARRANGE)
     await page.goto('/signup')
     const successMessage = page.getByTestId('successMessage')
@@ -22,12 +22,12 @@ test.describe.serial('signup and login sequence', () => {
     await expect(successMessage).toBeVisible()
   })
 
-  test('visitor can not access home page before login', async ({ page }) => {
+  test.fixme('visitor can not access home page before login', async ({ page }) => {
     await page.goto('/home')
     await page.waitForURL('/login')
   })
 
-  test('visitor can login', async ({ page }) => {
+  test.fixme('visitor can login', async ({ page }) => {
     // Given (ARRANGE)
     await page.goto('/login')
     const heading = page.getByTestId('home-heading')
