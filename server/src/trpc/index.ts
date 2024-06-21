@@ -15,10 +15,6 @@ export type Context = {
   req?: Request
   res?: Response
   authUser?: AuthUser
-
-  // This is used only in the project.create example.
-  // It is a bit more advanced and not necessary unless you want
-  // to apply dependency injection thoroughly.
   repos?: {
     [K in keyof Entities]?: Repository<InstanceType<Entities[K]>>
   }

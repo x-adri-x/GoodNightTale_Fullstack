@@ -46,7 +46,7 @@ it('should require a valid email', async () => {
       email: 'user-email-invalid',
       password: 'password.123',
     })
-  ).rejects.toThrow(/email/i) // throws out some error complaining about "email"
+  ).rejects.toThrow(/email/i)
 })
 
 it('should require a password with at least 8 characters', async () => {
@@ -55,7 +55,7 @@ it('should require a password with at least 8 characters', async () => {
       email: 'user2@domain.com',
       password: 'pas.123',
     })
-  ).rejects.toThrow(/password/i) // throws out some error complaining about "password"
+  ).rejects.toThrow(/password/i)
 })
 
 it('throws an error for invalid email', async () => {
@@ -85,7 +85,7 @@ it('stores email with trimmed whitespace', async () => {
   const user = fakeUser()
   await signup({
     ...user,
-    email: ` \t ${user.email}\t `, // tabs and spaces
+    email: ` \t ${user.email}\t `,
   })
 
   await expect(

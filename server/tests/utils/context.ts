@@ -24,7 +24,7 @@ export const authContext = (
 })
 
 export const authRepoContext = (
-  repos: any, // Context['repos'], but easier to work with any
+  repos: any,
   user: AuthUser = fakeUser()
 ): Context => ({
   authUser: authUserSchema.parse(user),
