@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { trpc } from '@/trpc'
 import { useRoute, useRouter } from 'vue-router'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
-import {
-  handleError,
-  checkUrlValidity,
-  generateIllustrations,
-  refreshIllustrationUrls,
-} from '@/utils/helpers'
+import { handleError, checkUrlValidity, generateIllustrations } from '@/utils/helpers'
 
 const illustrationRequestErrorMessage =
   'Something went wrong when trying to generate images for your tale.'
@@ -27,11 +22,28 @@ const tempUrl = ref('')
 const editedIllustrationId = ref()
 const router = useRouter()
 
-const safeGet = handleError(trpc.tale.get.query, errorMessage)
-tale.value = await safeGet(taleId)
-if (errorMessage.value === 'Tale not found') {
-  router.push({ name: 'Not Found' })
-}
+const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
+illustrations.value = await getIllustrations({ taleId })
+illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
+  if (!checkUrlValidity(i.createdAt)) {
+    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+    i.url = await safeIllustrationDownload(i.key)
+    const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)
+    await safeCreate(i)
+  }
+})
+
+watch(
+  () => illustrations.value,
+  async () => {
+    const safeGet = handleError(trpc.tale.get.query, errorMessage)
+    tale.value = await safeGet(taleId)
+    if (errorMessage.value === 'Tale not found') {
+      router.push({ name: 'Not Found' })
+    }
+  },
+  { immediate: true }
+)
 
 const updateTitle = async () => {
   isLoading.value = true
@@ -62,17 +74,6 @@ const generateNewIllustration = async (id: string) => {
   isLoading.value = false
 }
 
-const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
-illustrations.value = await getIllustrations({ taleId })
-illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
-  if (!checkUrlValidity(i.createdAt)) {
-    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    i.url = await safeIllustrationDownload(i.key)
-    const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)
-    await safeCreate(i)
-  }
-})
-
 const updateIllustration = async (illustrationId: any, key: string) => {
   isLoading.value = true
   // upload the new images to S3 with the same key
@@ -80,15 +81,16 @@ const updateIllustration = async (illustrationId: any, key: string) => {
   await safeIllustrationUpload({ url: tempUrl.value, key })
 
   // grab the new url-s from S3
-  const { urls, error } = await refreshIllustrationUrls([key], errorMessage)
-  errorMessage.value = error.value
+  const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+  const url = await safeIllustrationDownload(key)
 
   // update the illustration with the new prompt and url in the database
+
   const updated = await trpc.illustration.update.mutate({
     taleId,
     id: illustrationId,
     prompt: prompt.value,
-    url: urls[0],
+    url: url,
   })
 
   const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === illustrationId)
@@ -107,7 +109,7 @@ const discardChanges = () =>
     <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
   </div>
 
-  <div class="main" v-if="illustrations">
+  <div class="main" v-if="tale">
     <h1>Customize your tale</h1>
     <h2>{{ tale.title }}</h2>
     <h3>Change title:</h3>

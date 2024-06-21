@@ -66,19 +66,3 @@ export const checkUrlValidity = (createdAt: string) => {
   const seconds = (new Date().getTime() - new Date(createdAt).getTime()) / 1000
   return seconds < 86400
 }
-
-/**
- * A function to get new signed URLs from S3.
- * @param keys An array of the uploaded image keys for AWS S3.
- * @param errorMessage A ref to hold the error.message value.
- * @returns An object with the returned URLs, and the error message.
- */
-export const refreshIllustrationUrls = async (
-  keys: string[],
-  errorMessage: Ref
-): Promise<{ urls: string[]; error: Ref }> => {
-  const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-  const downloads = keys.map(async (key: string) => await safeIllustrationDownload(key))
-  const urls = await Promise.all(downloads)
-  return { urls, error: errorMessage }
-}

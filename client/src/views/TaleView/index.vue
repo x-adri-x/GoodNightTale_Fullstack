@@ -15,7 +15,6 @@ import {
   generateIllustrations,
   handleError,
   checkUrlValidity,
-  refreshIllustrationUrls,
 } from '@/utils/helpers'
 
 const dallEPrompt =
@@ -36,6 +35,7 @@ const sessionTale = ref()
 const pages = ref()
 const errorMessage = ref()
 const isSaved = ref()
+const prompts = ref()
 
 const getSessionTale = handleError(trpc.session.get.query, errorMessage)
 sessionTale.value = await getSessionTale()
@@ -43,9 +43,11 @@ sessionTale.value = await getSessionTale()
 if (sessionTale.value && !taleStore.generationInProgress) {
   isSaved.value = sessionTale.value.isSaved
   if (!checkUrlValidity(sessionTale.value.createdAt)) {
-    const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
-    errorMessage.value = error.value
-    sessionTale.value.urls = urls
+    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+    const downloads = sessionTale.value.keys.map(
+      async (key: string) => await safeIllustrationDownload(key)
+    )
+    sessionTale.value.urls = await Promise.all(downloads)
     const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
     await safeCreate(sessionTale.value)
   }
@@ -73,11 +75,9 @@ watch(
   () => promptStore.illustrationPrompts,
   async () => {
     sessionTale.value.prompts = promptStore.illustrationPrompts
-
+    prompts.value = promptStore.illustrationPrompts
     try {
       const response = await generateIllustrations(sessionTale.value.prompts)
-      // const safeGenerateIllustrations = handleError(generateIllustrations, errorMessage)
-      // const response = await safeGenerateIllustrations(sessionTale.value.prompts)
       const illustrationUrls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
       const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
       const uploads = illustrationUrls.map(
@@ -85,9 +85,11 @@ watch(
       )
 
       sessionTale.value.keys = await Promise.all(uploads)
-      const { urls, error } = await refreshIllustrationUrls(sessionTale.value.keys, errorMessage)
-      errorMessage.value = error
-      sessionTale.value.urls = urls
+      const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+      const downloads = sessionTale.value.keys.map(
+        async (key: string) => await safeIllustrationDownload(key)
+      )
+      sessionTale.value.urls = await Promise.all(downloads)
       const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
       await safeCreate({ ...sessionTale.value, isSaved: false })
       pages.value = createPages(sessionTale.value)
@@ -138,12 +140,7 @@ const handleClick = async () => {
       <CarouselComponent v-slot="{ currentSlide }">
         <CarouselSlide v-for="(page, i) in pages" :key="i">
           <div class="page" v-show="i === currentSlide">
-            <img
-              v-if="i === 2 || i === 4"
-              :src="page"
-              width="100%"
-              :alt="sessionTale.value.prompts[i]"
-            />
+            <img v-if="i === 2 || i === 4" :src="page" width="100%" />
             <div v-else :class="{ title: i === 0 }">{{ page }}</div>
           </div>
         </CarouselSlide>

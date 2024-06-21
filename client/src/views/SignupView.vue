@@ -13,6 +13,10 @@ const userForm = ref({
 const hasSucceeded = ref(false)
 const [submitSignup, errorMessage] = useErrorMessage(async () => {
   await signup(userForm.value)
+  userForm.value = {
+    email: '',
+    password: '',
+  }
   hasSucceeded.value = true
 })
 </script>
