@@ -56,7 +56,7 @@ const favorite = async (id: number) => {
 }
 </script>
 <template>
-  <div class="main" v-if="pages">
+  <div class="main" v-if="tale">
     <div class="heading">
       <h1>{{ tale.title }}</h1>
       <v-icon :icon="mdiTooltipEdit" :size="30" @click="router.push(`/edit/${tale.id}`)"></v-icon>
