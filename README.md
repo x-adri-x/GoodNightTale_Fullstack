@@ -1,6 +1,9 @@
+Note to reviewer: I added some Issues to the project, which are issues I am aware of but did not have time to implement solutions for.
+
 # Description
 
 The project is utilizing openai's chat completion and image generation capability to generate tales suitable for kids before bedtime.
+Public domain where the application could be accessed: [Good Night Tale App](https://goodnight-tale.gj5v4gtm6oof6.eu-central-1.cs.amazonlightsail.com/)
 
 ## Prerequisites
 

@@ -35,7 +35,7 @@ const handleClick = (name: string) => {
 </script>
 
 <template>
-  <v-layout class="main">
+  <v-layout>
     <v-app-bar>
       <template v-slot:prepend>
         <v-app-bar-nav-icon @click="show = !show" alt="hamburger menu"></v-app-bar-nav-icon>

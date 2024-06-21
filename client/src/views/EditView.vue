@@ -85,7 +85,6 @@ const updateIllustration = async (illustrationId: any, key: string) => {
   const url = await safeIllustrationDownload(key)
 
   // update the illustration with the new prompt and url in the database
-
   const updated = await trpc.illustration.update.mutate({
     taleId,
     id: illustrationId,
@@ -110,75 +109,79 @@ const discardChanges = () =>
   </div>
 
   <div class="main" v-if="tale">
-    <h1>Customize your tale</h1>
-    <h2>{{ tale.title }}</h2>
-    <h3>Change title:</h3>
-    <v-text-field
-      v-model="title"
-      theme="primary-darken-1"
-      :rules="[(value: string | any[]) => value.length >= 5]"
-      :label="tale.title"
-    ></v-text-field>
-    <v-skeleton-loader v-if="isLoading && title" type="button" width="100%"></v-skeleton-loader>
-    <ButtonPrimary
-      v-else
-      class="btn"
-      text="Save changes"
-      :isDisabled="title.length < 3"
-      @click="updateTitle"
-    />
-    <v-divider></v-divider>
-    <div v-if="illustrations">
-      <div v-for="illustration in illustrations" :key="illustration.id">
-        <h3>Change prompt for image:</h3>
-        <p>
-          {{ illustration.prompt }}
-        </p>
-        <v-textarea
-          v-model="prompt"
-          theme="primary-darken-1"
-          label="Write your own prompt (min 20 characters)"
-          :rules="[(value: string | any[]) => value.length >= 20]"
-          counter
-          minlength="20"
-        ></v-textarea>
-        <v-skeleton-loader
-          v-if="isLoading && illustration.id === editedIllustrationId"
-          type="card"
-          width="100%"
-        ></v-skeleton-loader>
-        <div v-else>
-          <img
-            :src="tempUrl && illustration.id === editedIllustrationId ? tempUrl : illustration.url"
+    <div class="container">
+      <h1>Customize your tale</h1>
+      <h2>{{ tale.title }}</h2>
+      <h3>Change title:</h3>
+      <v-text-field
+        v-model="title"
+        theme="primary-darken-1"
+        :rules="[(value: string | any[]) => value.length >= 5]"
+        :label="tale.title"
+      ></v-text-field>
+      <v-skeleton-loader v-if="isLoading && title" type="button" width="100%"></v-skeleton-loader>
+      <ButtonPrimary
+        v-else
+        class="btn"
+        text="Save changes"
+        :isDisabled="title.length < 3"
+        @click="updateTitle"
+      />
+      <v-divider></v-divider>
+      <div v-if="illustrations">
+        <div v-for="illustration in illustrations" :key="illustration.id">
+          <h3>Change prompt for image:</h3>
+          <p>
+            {{ illustration.prompt }}
+          </p>
+          <v-textarea
+            v-model="prompt"
+            theme="primary-darken-1"
+            label="Write your own prompt (min 20 characters)"
+            :rules="[(value: string | any[]) => value.length >= 20]"
+            counter
+            minlength="20"
+          ></v-textarea>
+          <v-skeleton-loader
+            v-if="isLoading && illustration.id === editedIllustrationId"
+            type="card"
             width="100%"
-            :alt="illustration.prompt"
-          />
-          <ButtonPrimary
-            v-if="tempUrl"
-            class="btn"
-            text="Save illustration"
-            :isDisabled="prompt.length < 20"
-            @click="() => updateIllustration(illustration.id, illustration.key)"
-          />
-          <ButtonPrimary
-            v-else
-            class="btn"
-            text="Generate new image"
-            :isDisabled="prompt.length < 20"
-            @click="() => generateNewIllustration(illustration.id)"
-          />
+          ></v-skeleton-loader>
+          <div v-else>
+            <img
+              :src="
+                tempUrl && illustration.id === editedIllustrationId ? tempUrl : illustration.url
+              "
+              width="100%"
+              :alt="illustration.prompt"
+            />
+            <ButtonPrimary
+              v-if="tempUrl"
+              class="btn"
+              text="Save illustration"
+              :isDisabled="prompt.length < 20"
+              @click="() => updateIllustration(illustration.id, illustration.key)"
+            />
+            <ButtonPrimary
+              v-else
+              class="btn"
+              text="Generate new image"
+              :isDisabled="prompt.length < 20"
+              @click="() => generateNewIllustration(illustration.id)"
+            />
 
-          <ButtonPrimary
-            v-if="tempUrl"
-            class="btn"
-            text="Discard changes"
-            :isDisabled="prompt.length < 20"
-            @click="discardChanges"
-          />
-          <div></div>
+            <ButtonPrimary
+              v-if="tempUrl"
+              class="btn"
+              text="Discard changes"
+              :isDisabled="prompt.length < 20"
+              @click="discardChanges"
+            />
+            <div></div>
+          </div>
+
+          <v-divider></v-divider>
         </div>
-
-        <v-divider></v-divider>
       </div>
     </div>
   </div>
@@ -207,7 +210,13 @@ p {
 
 @media (width >= 768px) {
   .main {
-    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    width: 60%;
   }
 }
 </style>
