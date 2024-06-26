@@ -1,15 +1,13 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
 const useTaleStore = defineStore('tale', () => {
-  const tale = ref('')
+  const id: Ref<number | undefined> = ref()
   const isTaleRequestFailed = ref(false)
   const generationInProgress = ref(false)
-  const keywords = ref()
 
   return {
-    tale,
-    keywords,
+    id,
     generationInProgress,
     isTaleRequestFailed,
   }

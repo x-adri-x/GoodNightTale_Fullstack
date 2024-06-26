@@ -13,8 +13,10 @@ export default taleIdOwnerProcedure
       return updateObject
     }
 
-    if (!input.title && !input.isFavorite) {
-      throw new Error("Either 'title' or 'isFavorite' must be provided")
+    if (!input.title && !input.isFavorite && !input.isSaved) {
+      throw new Error(
+        "Either 'title' or 'isFavorite' or 'isSaved' must be provided"
+      )
     }
 
     const updateObject = removeIdFromInput(input)

@@ -25,11 +25,23 @@ export class Illustration {
   @Column('text')
   prompt: string
 
-  @Column('text')
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   url: string
 
-  @Column('text')
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   key: string
+
+  @Column({
+    type: 'bool',
+    default: false,
+  })
+  isTemp: boolean
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
@@ -43,31 +55,27 @@ export const illustrationSchema = validates<IllustrationBare>().with({
   prompt: z.string().trim(),
   url: z.string().trim(),
   key: z.string(),
+  isTemp: z.boolean(),
   createdAt: z.date(),
 })
 
 export const illustrationInsertSchema = illustrationSchema.omit({
   id: true,
+  url: true,
   createdAt: true,
-})
-
-export const illustrationUpdateSchema = illustrationSchema.omit({
-  taleId: true,
   key: true,
-  createdAt: true,
 })
 
-export const illustrationUploadSchema = illustrationSchema
-  .extend({
-    key: illustrationSchema.shape.key.optional(),
-  })
-  .omit({
+export const illustrationUpdateSchema = illustrationSchema
+  .pick({
     id: true,
-    taleId: true,
-    prompt: true,
-    createdAt: true,
+    url: true,
   })
+  .extend({ isTemp: z.boolean().optional(), prompt: z.string().optional() })
+
+export const illustrationUploadSchema = illustrationSchema.pick({
+  id: true,
+})
 
 export type IllustrationInsert = z.infer<typeof illustrationInsertSchema>
 export type IllustrationUpdate = z.infer<typeof illustrationUpdateSchema>
-export type IllustrationUploadSchema = z.infer<typeof illustrationUploadSchema>

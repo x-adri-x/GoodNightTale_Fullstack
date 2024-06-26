@@ -7,7 +7,7 @@ export default authenticatedProcedure
   .query(async ({ ctx: { authUser, repos } }) => {
     const userId = authUser.id
     const tales = (await repos.Tale.find({
-      where: { userId },
+      where: { userId, isSaved: true },
       order: { id: 'ASC' },
     })) as TaleBare[]
 

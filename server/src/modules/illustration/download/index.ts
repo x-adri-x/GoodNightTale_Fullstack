@@ -4,12 +4,15 @@ import { z } from 'zod'
 import 'dotenv/config'
 import { authenticatedProcedure } from '@server/trpc/authenticatedProcedure'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import provideRepos from '@server/trpc/provideRepos'
+import { Illustration } from '@server/entities/illustration'
 
 const { env } = process
 
 export default authenticatedProcedure
-  .input(z.string())
-  .query(async ({ input: key }) => {
+  .input(z.number())
+  .use(provideRepos({ Illustration }))
+  .query(async ({ input, ctx: { repos } }) => {
     const s3 = new S3Client({
       region: env.REGION || 'eu-north-1',
       credentials: {
@@ -18,21 +21,31 @@ export default authenticatedProcedure
       },
     })
 
+    const illustration = await repos.Illustration.findOneBy({ id: input })
+
+    if (!illustration) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Illustration id not recognized.',
+      })
+    }
+
     const get = new GetObjectCommand({
       Bucket: env.BUCKET,
-      Key: key,
+      Key: illustration.key,
     })
 
     try {
       const url = await getSignedUrl(s3, get, { expiresIn: 86400 })
-      return url
+      await repos.Illustration.update({ id: input }, { url })
+      // await repos.Illustration.save({ id: input, url })
     } catch (error) {
       if (!(error instanceof Error)) {
         throw error
       } else {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: `Something went wrong while uploading to S3: ${error.message}`,
+          message: `Something went wrong while uploading to S3`,
         })
       }
     }

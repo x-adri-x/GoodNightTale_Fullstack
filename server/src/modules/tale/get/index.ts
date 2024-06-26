@@ -13,8 +13,6 @@ export default authenticatedProcedure
     })) as Tale
 
     if (!tale) {
-      // return null
-
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: `Tale was not found`,

@@ -8,7 +8,6 @@ import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import useErrorMessage from '@/composables/useErrorMessage'
 import useTaleStore from '@/stores/tale'
-import usePromptStore from '@/stores/prompt'
 
 const inputInfoMessage = 'Please add 5 keywords of your choice or choose from the provided list.'
 const duplicateWordWarning = 'You already have that word selected.'
@@ -20,7 +19,6 @@ const keywords: Ref<string[]> = ref([])
 const showWarning = ref(false)
 const warning = ref('')
 const taleStore = useTaleStore()
-const promptStore = usePromptStore()
 const router = useRouter()
 
 const handleClick = () => {
@@ -52,16 +50,10 @@ const selectRandomWord = (word: string) => {
 
 const [generateTale, errorMessage] = useErrorMessage(async () => {
   router.push('/tale')
-  promptStore.reset()
-  promptStore.updatePrompt({
-    role: 'user',
-    content: `The ${keywords.value.length} words are: ${keywords.value.slice(0).join(', ')}.`,
-  })
   taleStore.generationInProgress = true
   try {
-    const tale = await trpc.openai.chat.mutate(promptStore.stream)
-    taleStore.tale = tale
-    taleStore.keywords = keywords.value
+    const id = await trpc.openai.chat.mutate(keywords.value)
+    taleStore.id = id
   } catch (error) {
     taleStore.isTaleRequestFailed = true
   }

@@ -6,7 +6,7 @@ import CarouselSlide from '@/components/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { mdiTooltipEdit } from '@mdi/js'
 import { useRouter, useRoute } from 'vue-router'
-import { checkUrlValidity, handleError } from '@/utils/helpers'
+import { checkIllustrationExpiration, handleError } from '@/utils/helpers'
 
 const illustrationIndexes = '1,3'
 
@@ -22,7 +22,7 @@ const pages: string[] = []
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
 illustrations.value = await getIllustrations({ taleId })
 illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
-  if (!checkUrlValidity(i.createdAt)) {
+  if (!checkIllustrationExpiration(i.createdAt)) {
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
     i.url = await safeIllustrationDownload(i.key)
     const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)

@@ -1,49 +1,50 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, type Ref } from 'vue'
 import { trpc } from '@/trpc'
 import { useRoute, useRouter } from 'vue-router'
+import { type Tale } from '@goodnighttale/server/src/shared/entities'
 import AlertToast from '@/components/AlertToast.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
-import { handleError, checkUrlValidity, generateIllustrations } from '@/utils/helpers'
+import { handleError, checkIllustrationExpiration } from '@/utils/helpers'
 
 const illustrationRequestErrorMessage =
   'Something went wrong when trying to generate images for your tale.'
 
-const title = ref('')
-const prompt = ref('')
-const errorMessage = ref()
+const title: Ref<string> = ref('')
+const prompt: Ref<string> = ref('')
+const errorMessage: Ref<string> = ref('')
 const illustrations = ref()
-const tale = ref()
+const taleRef: Ref<Tale | undefined> = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
-const isLoading = ref(false)
-const btnText = ref('')
-const tempUrl = ref('')
+const isLoading: Ref<boolean> = ref(false)
+const btnText: Ref<string> = ref('')
+const tempUrl: Ref<string> = ref('')
 const editedIllustrationId = ref()
 const router = useRouter()
 
-const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
-illustrations.value = await getIllustrations({ taleId })
-illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
-  if (!checkUrlValidity(i.createdAt)) {
+let taleIllustrations
+try {
+  taleIllustrations = await trpc.illustration.find.query({ taleId })
+} catch (error) {
+  router.push({ name: 'Not Found' })
+}
+
+const illustrationsData = taleIllustrations?.map((i: { id: any; createdAt: any }) => ({
+  id: i.id,
+  createdAt: i.createdAt,
+}))
+
+illustrationsData?.map(async (data: { createdAt: string; id: any }) => {
+  if (!checkIllustrationExpiration(data.createdAt)) {
     const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    i.url = await safeIllustrationDownload(i.key)
-    const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)
-    await safeCreate(i)
+    await safeIllustrationDownload(data.id)
   }
 })
 
-watch(
-  () => illustrations.value,
-  async () => {
-    const safeGet = handleError(trpc.tale.get.query, errorMessage)
-    tale.value = await safeGet(taleId)
-    if (errorMessage.value === 'Tale not found') {
-      router.push({ name: 'Not Found' })
-    }
-  },
-  { immediate: true }
-)
+const updatedTale = await trpc.tale.get.query(taleId)
+taleRef.value = updatedTale
+illustrations.value = updatedTale.illustrations.filter((i) => !i.isTemp)
 
 const updateTitle = async () => {
   isLoading.value = true
@@ -53,7 +54,7 @@ const updateTitle = async () => {
   })
   if (updated.affected === 1) {
     isLoading.value = false
-    tale.value.title = title.value
+    taleRef.value!.title = title.value
     title.value = ''
   }
 }
@@ -62,11 +63,28 @@ const generateNewIllustration = async (id: string) => {
   isLoading.value = true
   editedIllustrationId.value = id
 
-  // DALL-E generates the images from the new prompts
+  // Save the prompts and other data to illustration
+  const illustration = {
+    prompt: prompt.value,
+    taleId: taleId,
+    createdAt: new Date(),
+    isTemp: true,
+  }
+
+  const created = await trpc.illustration.create.mutate(illustration)
+
+  // DALL-E generates the images from the new prompt
   try {
-    const response = await generateIllustrations([prompt.value])
-    const generatedUrl = response.map((r: { data: { url: string }[] }) => r.data[0].url)
-    tempUrl.value = generatedUrl[0]
+    await trpc.openai.visual.mutate({
+      taleId,
+      illustrationIds: [created.id],
+    })
+
+    await trpc.illustration.upload.mutate({ taleId: taleId, id: created.id })
+    await trpc.illustration.download.query(created.id)
+    const illustrations = await trpc.illustration.find.query({ taleId })
+    const illustrationData = illustrations.filter((i) => i.id === created.id)[0]
+    tempUrl.value = illustrationData.url
     isLoading.value = false
   } catch (error) {
     errorMessage.value = illustrationRequestErrorMessage
@@ -74,25 +92,14 @@ const generateNewIllustration = async (id: string) => {
   isLoading.value = false
 }
 
-const updateIllustration = async (illustrationId: any, key: string) => {
+const updateIllustration = async (id: any) => {
   isLoading.value = true
-  // upload the new images to S3 with the same key
-  const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
-  await safeIllustrationUpload({ url: tempUrl.value, key })
-
-  // grab the new url-s from S3
-  const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-  const url = await safeIllustrationDownload(key)
-
-  // update the illustration with the new prompt and url in the database
   const updated = await trpc.illustration.update.mutate({
-    taleId,
-    id: illustrationId,
+    id,
+    url: tempUrl.value,
     prompt: prompt.value,
-    url: url,
   })
-
-  const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === illustrationId)
+  const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === id)
   if (index !== -1) {
     illustrations.value[index] = updated
   }
@@ -108,16 +115,16 @@ const discardChanges = () =>
     <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
   </div>
 
-  <div class="main" v-if="tale">
+  <div class="main" v-if="taleRef">
     <div class="container">
       <h1>Customize your tale</h1>
-      <h2>{{ tale.title }}</h2>
+      <h2>{{ taleRef.title }}</h2>
       <h3>Change title:</h3>
       <v-text-field
         v-model="title"
         theme="primary-darken-1"
         :rules="[(value: string | any[]) => value.length >= 5]"
-        :label="tale.title"
+        :label="taleRef.title"
       ></v-text-field>
       <v-skeleton-loader v-if="isLoading && title" type="button" width="100%"></v-skeleton-loader>
       <ButtonPrimary
@@ -160,7 +167,7 @@ const discardChanges = () =>
               class="btn"
               text="Save illustration"
               :isDisabled="prompt.length < 20"
-              @click="() => updateIllustration(illustration.id, illustration.key)"
+              @click="() => updateIllustration(illustration.id)"
             />
             <ButtonPrimary
               v-else

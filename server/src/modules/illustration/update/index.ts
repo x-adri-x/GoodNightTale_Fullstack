@@ -1,22 +1,14 @@
 import { Illustration } from '@server/entities'
-import {
-  illustrationUpdateSchema,
-  type IllustrationUpdate,
-} from '@server/entities/illustration'
+import { illustrationUpdateSchema } from '@server/entities/illustration'
 import provideRepos from '@server/trpc/provideRepos'
 import { TRPCError } from '@trpc/server'
-import { taleIdOwnerProcedure } from '@server/trpc/taleIdOwnerProcedure'
+import { authenticatedProcedure } from '@server/trpc/authenticatedProcedure'
 
-export default taleIdOwnerProcedure
+export default authenticatedProcedure
   .use(provideRepos({ Illustration }))
   .input(illustrationUpdateSchema)
   .mutation(async ({ input, ctx: { repos } }) => {
-    function removeIdFromInput(obj: IllustrationUpdate & { taleId?: number }) {
-      const { taleId, id, ...updateObject } = obj
-      return { id, updateObject }
-    }
-
-    const { id, updateObject } = removeIdFromInput(input)
+    const { id, ...updateObject } = input
     const { affected } = await repos.Illustration.update(
       {
         id,

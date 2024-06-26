@@ -1,26 +1,13 @@
 <script setup lang="ts">
 import { trpc } from '@/trpc'
-import { watch, ref } from 'vue'
+import { watch, ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import useTaleStore from '@/stores/tale'
-import usePromptStore from '@/stores/prompt'
-import { useRouter } from 'vue-router'
 import AlertToast from '@/components/AlertToast.vue'
 import CarouselComponent from '@/components/CarouselComponent.vue'
 import CarouselSlide from '@/components/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
-import {
-  createPages,
-  createSessionObject,
-  extractPromptsForIllustrations,
-  generateIllustrations,
-  handleError,
-  checkUrlValidity,
-} from '@/utils/helpers'
-
-const dallEPrompt =
-  'Now create two prompts for DALL-E to illustrate your tale.' +
-  'Do not use names from your tale in the prompts.' +
-  'Your answer should be formatted like: prompt1: the first prompt, prompt2: the second prompt'
+import { createPages, handleError, checkIllustrationExpiration } from '@/utils/helpers'
 
 const networkErrorTitle = 'Network request error.'
 const networkErrorMessage =
@@ -28,100 +15,66 @@ const networkErrorMessage =
 const illustrationRequestErrorMessage =
   'Something went wrong when trying to generate images for your tale.'
 
+const route = useRoute()
 const router = useRouter()
 const taleStore = useTaleStore()
-const promptStore = usePromptStore()
-const sessionTale = ref()
 const pages = ref()
 const errorMessage = ref()
 const isSaved = ref()
-const prompts = ref()
+const taleId = computed(() => (route.query.id ? route.query.id : taleStore.id))
 
-const getSessionTale = handleError(trpc.session.get.query, errorMessage)
-sessionTale.value = await getSessionTale()
-
-if (sessionTale.value && !taleStore.generationInProgress) {
-  isSaved.value = sessionTale.value.isSaved
-  if (!checkUrlValidity(sessionTale.value.createdAt)) {
-    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    const downloads = sessionTale.value.keys.map(
-      async (key: string) => await safeIllustrationDownload(key)
-    )
-    sessionTale.value.urls = await Promise.all(downloads)
-    const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-    await safeCreate(sessionTale.value)
-  }
-  pages.value = createPages(sessionTale.value)
+if (!taleStore.generationInProgress) {
+  const getTale = handleError(trpc.tale.get.query, errorMessage)
+  const tale = await getTale(parseInt(taleId.value as string, 10))
+  isSaved.value = tale.isSaved
+  const illustrationsData = tale.illustrations.map((i: { id: any; createdAt: any }) => ({
+    id: i.id,
+    createdAt: i.createdAt,
+  }))
+  illustrationsData.map(async (data: { createdAt: string; id: any }) => {
+    if (!checkIllustrationExpiration(data.createdAt)) {
+      const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+      await safeIllustrationDownload(data.id)
+    }
+  })
+  pages.value = createPages(tale)
 }
 
 watch(
-  () => taleStore.tale,
+  () => taleStore.id,
   async () => {
-    sessionTale.value = createSessionObject(taleStore.tale)
-    sessionTale.value.keywords = taleStore.keywords
-    promptStore.updatePrompt({ role: 'assistant', content: taleStore.tale })
-    promptStore.updatePrompt({ role: 'user', content: dallEPrompt })
+    router.push({
+      query: {
+        id: taleStore.id,
+      },
+    })
+    const safeTaleGet = handleError(trpc.tale.get.query, errorMessage)
+    const tale = await safeTaleGet(taleStore.id)
+    const illustrationIds = tale.illustrations.map((i: { id: any }) => i.id)
     try {
-      const prompts = await trpc.openai.chat.mutate(promptStore.stream)
-      promptStore.illustrationPrompts = extractPromptsForIllustrations(prompts)
-    } catch (error) {
-      if (!(error instanceof Error)) throw error
-      errorMessage.value = `Something went wrong while generating illustrations: ${error.message}`
-    }
-  }
-)
-
-watch(
-  () => promptStore.illustrationPrompts,
-  async () => {
-    sessionTale.value.prompts = promptStore.illustrationPrompts
-    prompts.value = promptStore.illustrationPrompts
-    try {
-      const response = await generateIllustrations(sessionTale.value.prompts)
-      const illustrationUrls = response.map((r: { data: { url: string }[] }) => r.data[0].url)
-      const safeIllustrationUpload = handleError(trpc.illustration.upload.mutate, errorMessage)
-      const uploads = illustrationUrls.map(
-        async (url: string) => await safeIllustrationUpload({ url })
+      await trpc.openai.visual.mutate({ taleId: taleStore.id!, illustrationIds })
+      const uploadPromises = tale.illustrations.map((i: { id: any }) =>
+        trpc.illustration.upload.mutate({ taleId: taleStore.id!, id: i.id })
       )
-
-      sessionTale.value.keys = await Promise.all(uploads)
-      const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-      const downloads = sessionTale.value.keys.map(
-        async (key: string) => await safeIllustrationDownload(key)
+      await Promise.all(uploadPromises)
+      const downloadPromises = tale.illustrations.map((i: { id: any }) =>
+        trpc.illustration.download.query(i.id)
       )
-      sessionTale.value.urls = await Promise.all(downloads)
-      const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-      await safeCreate({ ...sessionTale.value, isSaved: false })
-      pages.value = createPages(sessionTale.value)
-      taleStore.generationInProgress = false
+      await Promise.all(downloadPromises)
     } catch (error) {
       errorMessage.value = illustrationRequestErrorMessage
     }
+    const safeTaleWithIllustrationsGet = handleError(trpc.tale.get.query, errorMessage)
+    const taleWithIllustrations = await safeTaleWithIllustrationsGet(taleStore.id)
+    pages.value = createPages(taleWithIllustrations)
+    taleStore.generationInProgress = false
   }
 )
 
-const createIllustrationObjects = () => {
-  return sessionTale.value.prompts.map((prompt: string, index: number) => {
-    return { prompt, key: sessionTale.value.keys[index], url: sessionTale.value.urls[index] }
-  })
-}
-
 const saveTale = async () => {
-  const safeSaveTale = handleError(trpc.tale.create.mutate, errorMessage)
-  const saved = await safeSaveTale({
-    title: sessionTale.value.title,
-    body: sessionTale.value.body,
-    keywords: sessionTale.value.keywords,
-  })
-  const illustrations = createIllustrationObjects()
-  illustrations!.forEach(
-    async (i: { taleId: number; prompt: string; url: string; key: string }) =>
-      await trpc.illustration.create.mutate({ ...i, taleId: saved.id })
-  )
+  const safeUpdate = handleError(trpc.tale.update.mutate, errorMessage)
+  await safeUpdate({ taleId: parseInt(taleId.value as string, 10), isSaved: true })
   isSaved.value = true
-  sessionTale.value.isSaved = true
-  const safeCreate = handleError(trpc.session.create.mutate, errorMessage)
-  await safeCreate(sessionTale.value)
 }
 
 const handleClick = async () => {
@@ -130,7 +83,7 @@ const handleClick = async () => {
 </script>
 <template>
   <div class="main">
-    <div v-if="errorMessage">
+    <div class="alert" v-if="errorMessage">
       <AlertToast data-testid="errorMessage" variant="error" title="Error" :text="errorMessage" />
     </div>
     <div v-if="taleStore.isTaleRequestFailed">
@@ -182,11 +135,11 @@ const handleClick = async () => {
 img {
   border-top-right-radius: 15%;
   border-bottom-right-radius: 15%;
+  width: 80%;
 }
 
 .unsuccessful {
   border-radius: 15px;
-  width: 80%;
 }
 
 .title {
@@ -196,7 +149,9 @@ img {
 @media (width >= 768px) {
   .main {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
   }
 
   .content {
@@ -205,10 +160,6 @@ img {
     display: flex;
     flex-direction: column;
     justify-content: center;
-  }
-
-  img {
-    width: 80%;
   }
 
   .page {

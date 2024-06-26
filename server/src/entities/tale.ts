@@ -44,6 +44,12 @@ export class Tale {
   })
   isFavorite: boolean | null
 
+  @Column({
+    type: 'bool',
+    nullable: true,
+  })
+  isSaved: boolean | null
+
   @OneToMany(() => Illustration, (illustration) => illustration.tale, {
     cascade: ['insert', 'update', 'remove'],
   })
@@ -58,7 +64,6 @@ export const taleSchema = validates<TaleBare>().with({
   title: z
     .string()
     .trim()
-    // with a friendly error message
     .min(2, 'Tale name must be at least 2 characters long')
     .max(100),
   body: z.array(z.string()),
@@ -66,6 +71,11 @@ export const taleSchema = validates<TaleBare>().with({
   isFavorite: z
     .boolean({
       invalid_type_error: 'isFavorite must be a boolean',
+    })
+    .nullable(),
+  isSaved: z
+    .boolean({
+      invalid_type_error: 'isSaved must be a boolean',
     })
     .nullable(),
 })
@@ -78,13 +88,21 @@ const talePartialSchema = z.object({
     .max(100)
     .optional(),
   isFavorite: z.boolean().nullable().optional(),
+  isSaved: z.boolean().nullable().optional(),
 })
 
-export const taleInsertSchema = taleSchema.omit({ id: true, isFavorite: true })
+export const taleInsertSchema = taleSchema.omit({
+  id: true,
+  isFavorite: true,
+  isSaved: true,
+})
 export const taleUpdateSchema = talePartialSchema.refine(
-  (data) => data.title !== undefined || data.isFavorite !== undefined,
+  (data) =>
+    data.title !== undefined ||
+    data.isFavorite !== undefined ||
+    data.isSaved !== undefined,
   {
-    message: "Either 'title' or 'isFavorite' must be present",
+    message: "Either 'title' or 'isFavorite' or 'isSaved' must be present",
   }
 )
 
