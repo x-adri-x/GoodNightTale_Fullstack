@@ -26,6 +26,7 @@ export const fakeTale = <T extends Partial<Tale>>(overrides: T = {} as T) => ({
   body: [random.string(), random.string()],
   keywords: ['foo', 'bar', 'baz'],
   isFavorite: false,
+  isSaved: true,
   ...overrides,
 })
 
@@ -37,8 +38,7 @@ export const fakeIllustration = <T extends Partial<Illustration>>(
   overrides: T = {} as T
 ) => ({
   id: randomId(),
-  prompt: 'A fake prompt.',
-  url: random.string(),
-  key: random.string(),
+  prompt: 'A picture of a cute brown cat.',
+  isTemp: false,
   ...overrides,
 })

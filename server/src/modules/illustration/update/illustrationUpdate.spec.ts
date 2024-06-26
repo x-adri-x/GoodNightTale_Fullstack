@@ -6,7 +6,7 @@ import illustrationRouter from '..'
 
 const createCaller = createCallerFactory(illustrationRouter)
 
-it('sets a new prompt for the illustration', async () => {
+it('sets a new prompt and url for the illustration if both are provided', async () => {
   // ARRANGE (Given)
   const { db, user, tale } = await setupTest()
   const taleWithIllustration = await db.getRepository(Tale).findOne({
@@ -15,34 +15,26 @@ it('sets a new prompt for the illustration', async () => {
   })
 
   const illustration = {
-    taleId: tale.id,
     id: taleWithIllustration?.illustrations[0].id!,
-    url: taleWithIllustration?.illustrations[0].url!,
-    prompt: 'Updated prompt',
+    url: 'Updated illustration url.',
+    prompt: 'Updated prompt for illustration.',
   }
 
   const { update } = createCaller(authContext({ db }, user))
 
   // ACT (When)
   const illustrationUpdated = await update(illustration)
-  const existing = await db.getRepository(Tale).findOne({
-    where: { id: tale.id },
-    relations: ['illustrations'],
-  })
-  if (!existing) {
-    throw new Error(`Tale with id ${tale.id} not found`)
-  }
 
   // ASSERT (Then)
   expect(illustrationUpdated).toMatchObject({
     id: illustration.id,
-    prompt: illustration.prompt,
+    url: 'Updated illustration url.',
+    prompt: 'Updated prompt for illustration.',
   })
 })
 
 it('updates the url', async () => {
-  // it will need to check that the url is updated
-  const { db, user, tale, illustrations } = await setupTest()
+  const { db, user, illustrations } = await setupTest()
   const { update } = createCaller(authContext({ db }, user))
 
   const illustrationToUpdate = {
@@ -51,7 +43,6 @@ it('updates the url', async () => {
   }
 
   const updated = await update({
-    taleId: tale.id,
     id: illustrationToUpdate.id,
     prompt: illustrationToUpdate.prompt,
     url: illustrationToUpdate.url,
@@ -59,7 +50,18 @@ it('updates the url', async () => {
   expect(updated.url).toBe('Updated url')
 })
 
-// Example with a database
+it('updates isTemp value', async () => {
+  const { db, user, illustrations } = await setupTest()
+  const { update } = createCaller(authContext({ db }, user))
+
+  const updated = await update({
+    id: illustrations[0].id,
+    url: 'https://faketown.com/fakeIllustration?id=1',
+    isTemp: true,
+  })
+  expect(updated.isTemp).toBe(true)
+})
+
 it('throws an error if illustration is not found', async () => {
   // ARRANGE (Given)
   const {
@@ -72,9 +74,19 @@ it('throws an error if illustration is not found', async () => {
   // ACT (When) & ASSERT (Then)
   await expect(
     update({
-      ...illustration,
       id: illustration.id + 12345,
-      prompt: 'Updated prompt',
+      url: 'https://faketown.com/fakeIllustration?id=1',
     })
   ).rejects.toThrow(/not found/i)
+})
+
+it('adds createdAt when updating illustration', async () => {
+  const { db, user, illustrations } = await setupTest()
+  const { update } = createCaller(authContext({ db }, user))
+
+  const updated = await update({
+    id: illustrations[0].id,
+    url: 'https://faketown.com/fakeIllustration?id=1',
+  })
+  expect(updated.createdAt).toStrictEqual(expect.any(Date))
 })

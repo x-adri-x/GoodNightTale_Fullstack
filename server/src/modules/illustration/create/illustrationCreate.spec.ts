@@ -25,7 +25,7 @@ it('saves an illustration to a specific tale', async () => {
   expect(illustrationCreated.id).not.toEqual(illustration.id)
 })
 
-it('saves an illustration with a timestamp', async () => {
+it('it creates a key based on the prompt', async () => {
   // ARRANGE (Given)
   const { db, tale, user } = await setupTest()
   const { create } = createCaller(authContext({ db }, user))
@@ -34,11 +34,8 @@ it('saves an illustration with a timestamp', async () => {
 
   const illustration = fakeIllustration({ taleId: tale.id })
   const illustrationCreated = await create(illustration)
+  const key = illustrationCreated.prompt.slice(0, 15).replace(/\s/g, '')
 
   // ASSERT (Then)
-  expect(illustrationCreated).toEqual({
-    ...illustration,
-    id: expect.any(Number),
-    createdAt: expect.any(Date),
-  })
+  expect(illustrationCreated.key).toContain(key)
 })

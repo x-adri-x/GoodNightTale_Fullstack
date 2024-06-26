@@ -25,6 +25,7 @@ export default taleIdOwnerProcedure
     const key =
       illustration.prompt.slice().slice(0, 15).replace(/\s/g, '') +
       random.string()
+
     const illustrationCreated = await repos.Illustration.save({
       ...illustration,
       key,

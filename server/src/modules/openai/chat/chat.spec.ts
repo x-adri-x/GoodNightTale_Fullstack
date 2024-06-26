@@ -9,9 +9,14 @@ it('tests if chat completion is called', async () => {
   const { db, openai, user } = await setupTest()
   const { chat } = createCaller(authContext({ db, generativeAI: openai }, user))
 
-  await chat([{ role: 'system', content: 'You are a good AI' }])
-  expect(openai.chatCompletion).toHaveBeenCalledOnce()
-  expect(openai.chatCompletion).toHaveBeenCalledWith([
-    { role: 'system', content: 'You are a good AI' },
-  ])
+  await chat(['foo', 'bar', 'baz'])
+  expect(openai.chatCompletion).toHaveBeenCalledTimes(2)
+})
+
+it('returns the id of a created tale', async () => {
+  const { db, openai, user } = await setupTest()
+  const { chat } = createCaller(authContext({ db, generativeAI: openai }, user))
+
+  const taleId = await chat(['foo', 'bar', 'baz'])
+  expect(taleId).toStrictEqual(expect.any(Number))
 })

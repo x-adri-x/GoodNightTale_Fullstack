@@ -34,12 +34,14 @@ export default async function setupTest() {
       choices: [
         {
           message: {
-            content: 'Mocked response content',
+            content: 'Title: The princess and the dragon',
           },
         },
       ],
     }),
-    visualGeneration: vi.fn(),
+    visualGeneration: vi.fn().mockResolvedValue({
+      data: [{ url: 'https://faketown.com/fakeIllustration?id=1' }],
+    }),
   }
   return {
     db,
