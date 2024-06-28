@@ -4,11 +4,7 @@ import { z } from 'zod'
 import provideRepos from '@server/trpc/provideRepos'
 import { Tale, type TaleInsert } from '@server/entities/tale'
 import { Illustration } from '@server/entities/illustration'
-import {
-  createTaleObject,
-  extractPromptsForIllustrations,
-  generateKey,
-} from './utils'
+import { createTaleObject, extractPromptsForIllustrations } from './utils'
 
 export default authenticatedProcedure
   .use(provideRepos({ Tale, Illustration }))
@@ -74,12 +70,9 @@ export default authenticatedProcedure
     }
 
     const promptsArray = extractPromptsForIllustrations(prompts)
-    const keys = promptsArray?.map((prompt) => generateKey(prompt))
-    const illustrations = promptsArray!.map((prompt, i) => ({
+    const illustrations = promptsArray!.map((prompt) => ({
       prompt,
       taleId: taleCreated.id,
-      key: keys![i],
-      createdAt: new Date(),
     }))
     const promises = illustrations.map((i) => repos.Illustration.save(i))
     await Promise.all(promises)

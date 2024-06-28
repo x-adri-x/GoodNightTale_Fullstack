@@ -66,12 +66,10 @@ export const illustrationInsertSchema = illustrationSchema.omit({
   key: true,
 })
 
-export const illustrationUpdateSchema = illustrationSchema
-  .pick({
-    id: true,
-    url: true,
-  })
-  .extend({ isTemp: z.boolean().optional(), prompt: z.string().optional() })
+export const illustrationUpdateSchema = illustrationSchema.pick({
+  id: true,
+  isTemp: true,
+})
 
 export const illustrationUploadSchema = illustrationSchema.pick({
   id: true,

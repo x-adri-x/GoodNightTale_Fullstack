@@ -11,7 +11,7 @@ const illustrationRequestErrorMessage =
   'Something went wrong when trying to generate images for your tale.'
 
 const title: Ref<string> = ref('')
-const prompt: Ref<string> = ref('')
+const prompt: Ref<Array<string>> = ref(['', ''])
 const errorMessage: Ref<string> = ref('')
 const illustrations = ref()
 const taleRef: Ref<Tale | undefined> = ref()
@@ -19,7 +19,7 @@ const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
 const isLoading: Ref<boolean> = ref(false)
 const btnText: Ref<string> = ref('')
-const tempUrl: Ref<string> = ref('')
+const editInProgress: Ref<boolean> = ref(false)
 const editedIllustrationId = ref()
 const router = useRouter()
 
@@ -30,10 +30,12 @@ try {
   router.push({ name: 'Not Found' })
 }
 
-const illustrationsData = taleIllustrations?.map((i: { id: any; createdAt: any }) => ({
-  id: i.id,
-  createdAt: i.createdAt,
-}))
+const illustrationsData = taleIllustrations
+  ?.filter((i) => !i.isTemp)
+  .map((i: { id: any; createdAt: any }) => ({
+    id: i.id,
+    createdAt: i.createdAt,
+  }))
 
 illustrationsData?.map(async (data: { createdAt: string; id: any }) => {
   if (!checkIllustrationExpiration(data.createdAt)) {
@@ -59,21 +61,22 @@ const updateTitle = async () => {
   }
 }
 
-const generateNewIllustration = async (id: string) => {
+const generateNewIllustration = async (id: number, i: number) => {
   isLoading.value = true
   editedIllustrationId.value = id
 
-  // Save the prompts and other data to illustration
+  // Save the prompt and other data to illustration
   const illustration = {
-    prompt: prompt.value,
+    prompt: prompt.value[i],
     taleId: taleId,
     createdAt: new Date(),
     isTemp: true,
   }
+  console.log(illustrations.value)
 
   const created = await trpc.illustration.create.mutate(illustration)
 
-  // DALL-E generates the images from the new prompt
+  // DALL-E generates the image from the new prompt
   try {
     await trpc.openai.visual.mutate({
       taleId,
@@ -82,9 +85,15 @@ const generateNewIllustration = async (id: string) => {
 
     await trpc.illustration.upload.mutate({ taleId: taleId, id: created.id })
     await trpc.illustration.download.query(created.id)
-    const illustrations = await trpc.illustration.find.query({ taleId })
-    const illustrationData = illustrations.filter((i) => i.id === created.id)[0]
-    tempUrl.value = illustrationData.url
+    const updatedIllustrations = await trpc.illustration.find.query({ taleId })
+    const updated = updatedIllustrations.filter((i) => i.id === created.id)[0]
+
+    const index = illustrations.value.findIndex((obj: { id: number }) => obj.id === id)
+    if (index !== -1) {
+      illustrations.value[index] = updated
+    }
+
+    editInProgress.value = true
     isLoading.value = false
   } catch (error) {
     errorMessage.value = illustrationRequestErrorMessage
@@ -92,23 +101,28 @@ const generateNewIllustration = async (id: string) => {
   isLoading.value = false
 }
 
-const updateIllustration = async (id: any) => {
+const updateIllustration = async (id: number) => {
   isLoading.value = true
-  const updated = await trpc.illustration.update.mutate({
-    id,
-    url: tempUrl.value,
-    prompt: prompt.value,
+  await trpc.illustration.update.mutate({
+    id: editedIllustrationId.value,
+    isTemp: true,
   })
-  const index = illustrations.value.findIndex((obj: { id: any }) => obj.id === id)
-  if (index !== -1) {
-    illustrations.value[index] = updated
-  }
+
+  await trpc.illustration.update.mutate({
+    id,
+    isTemp: false,
+  })
+
   isLoading.value = false
   discardChanges()
 }
 
-const discardChanges = () =>
-  [tempUrl, btnText, prompt, editedIllustrationId].forEach((ref) => (ref.value = ''))
+const discardChanges = () => {
+  editInProgress.value = false
+  const refs = [btnText, editedIllustrationId]
+  prompt.value = ['', '']
+  refs.forEach((ref) => (ref.value = ''))
+}
 </script>
 <template>
   <div v-if="errorMessage">
@@ -136,13 +150,13 @@ const discardChanges = () =>
       />
       <v-divider></v-divider>
       <div v-if="illustrations">
-        <div v-for="illustration in illustrations" :key="illustration.id">
+        <div v-for="(illustration, i) in illustrations" :key="illustration.id">
           <h3>Change prompt for image:</h3>
           <p>
             {{ illustration.prompt }}
           </p>
           <v-textarea
-            v-model="prompt"
+            v-model="prompt[i]"
             theme="primary-darken-1"
             label="Write your own prompt (min 20 characters)"
             :rules="[(value: string | any[]) => value.length >= 20]"
@@ -155,30 +169,24 @@ const discardChanges = () =>
             width="100%"
           ></v-skeleton-loader>
           <div v-else>
-            <img
-              :src="
-                tempUrl && illustration.id === editedIllustrationId ? tempUrl : illustration.url
-              "
-              width="100%"
-              :alt="illustration.prompt"
-            />
+            <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
             <ButtonPrimary
-              v-if="tempUrl"
+              v-if="editInProgress"
               class="btn"
               text="Save illustration"
-              :isDisabled="prompt.length < 20"
+              :isDisabled="prompt[i].length < 20"
               @click="() => updateIllustration(illustration.id)"
             />
             <ButtonPrimary
               v-else
               class="btn"
               text="Generate new image"
-              :isDisabled="prompt.length < 20"
-              @click="() => generateNewIllustration(illustration.id)"
+              :isDisabled="prompt[i].length < 20"
+              @click="() => generateNewIllustration(illustration.id, i)"
             />
 
             <ButtonPrimary
-              v-if="tempUrl"
+              v-if="editInProgress"
               class="btn"
               text="Discard changes"
               :isDisabled="prompt.length < 20"

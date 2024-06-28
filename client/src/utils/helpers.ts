@@ -5,14 +5,14 @@ import type { Ref } from 'vue'
 
 const illustrationIndexes = '1,3'
 
-export const createPages = (tale: Tale): (string | String)[] => {
-  const urls = tale.illustrations.map((i) => i.url)
+export const createPages = (tale: Tale): string[] => {
+  const urls: string[] = tale.illustrations.filter((i) => !i.isTemp).map((i) => i.url)
   const pages = []
   pages.push(tale.title)
   illustrationIndexes.split(',').forEach((index, i) => {
     tale.body.splice(parseInt(index, 10), 0, urls[i])
   })
-  pages.push(...tale.body)
+  pages.push(...(tale.body as string[]))
   return pages
 }
 

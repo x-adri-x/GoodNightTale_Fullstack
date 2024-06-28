@@ -38,7 +38,6 @@ export default authenticatedProcedure
     try {
       const url = await getSignedUrl(s3, get, { expiresIn: 86400 })
       await repos.Illustration.update({ id: input }, { url })
-      // await repos.Illustration.save({ id: input, url })
     } catch (error) {
       if (!(error instanceof Error)) {
         throw error

@@ -9,6 +9,7 @@ import {
 import { taleIdOwnerProcedure } from '@server/trpc/taleIdOwnerProcedure'
 import provideRepos from '@server/trpc/provideRepos'
 import { Tale } from '@server/entities/tale'
+import { generateKey } from './utils'
 
 const { env } = process
 
@@ -50,15 +51,19 @@ export default taleIdOwnerProcedure
     const response = await axios.get(illustration!.url, {
       responseType: 'arraybuffer',
     })
+
+    const key = generateKey(illustration!.prompt)
+
     const command = new PutObjectCommand({
       Bucket: env.BUCKET,
-      Key: illustration!.key,
+      Key: key,
       Body: response.data,
       ContentType: response.headers['content-type'],
     })
 
     try {
       await s3.send(command)
+      await repos.Illustration.update({ id }, { key, createdAt: new Date() })
     } catch (error) {
       if (!(error instanceof Error)) throw error
       throw new TRPCError({

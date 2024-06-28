@@ -8,13 +8,13 @@ export default authenticatedProcedure
   .use(provideRepos({ Illustration }))
   .input(illustrationUpdateSchema)
   .mutation(async ({ input, ctx: { repos } }) => {
-    const { id, ...updateObject } = input
+    const { id, isTemp } = input
     const { affected } = await repos.Illustration.update(
       {
         id,
       },
       {
-        ...updateObject,
+        isTemp,
         createdAt: new Date(),
       }
     )

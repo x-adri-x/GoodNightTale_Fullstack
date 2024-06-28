@@ -1,51 +1,43 @@
 <script setup lang="ts">
 import { trpc } from '@/trpc'
-import { ref, watch } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import CarouselComponent from '@/components/CarouselComponent.vue'
 import CarouselSlide from '@/components/CarouselSlide.vue'
 import ButtonPrimary from '@/components/ButtonPrimary.vue'
 import { mdiTooltipEdit } from '@mdi/js'
 import { useRouter, useRoute } from 'vue-router'
-import { checkIllustrationExpiration, handleError } from '@/utils/helpers'
-
-const illustrationIndexes = '1,3'
+import { checkIllustrationExpiration, createPages, handleError } from '@/utils/helpers'
 
 const router = useRouter()
 const errorMessage = ref()
 const tale = ref()
-const illustrations = ref()
+const illustrationsRef = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
 const isFavorite = ref(false)
-const pages: string[] = []
+const pages: Ref<string[]> = ref([])
 
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
-illustrations.value = await getIllustrations({ taleId })
-illustrations.value.forEach(async (i: { createdAt: string; url: any; key: any }) => {
-  if (!checkIllustrationExpiration(i.createdAt)) {
-    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-    i.url = await safeIllustrationDownload(i.key)
-    const safeCreate = handleError(trpc.illustration.update.mutate, errorMessage)
-    await safeCreate(i)
-  }
-})
+const illustrations = (await getIllustrations({ taleId })).filter((i: { isTemp: any }) => !i.isTemp)
+illustrations
+  .filter((i: { isTemp: any }) => !i.isTemp)
+  .forEach(async (i: { createdAt: string; id: number }) => {
+    if (!checkIllustrationExpiration(i.createdAt)) {
+      const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+      await safeIllustrationDownload(i.id)
+    }
+  })
+
+illustrationsRef.value = illustrations
 
 watch(
-  () => illustrations.value,
+  () => illustrationsRef.value,
   async () => {
     const safeGet = handleError(trpc.tale.get.query, errorMessage)
     tale.value = await safeGet(taleId)
     if (errorMessage.value === 'Tale was not found') router.push({ name: 'Not Found' })
 
-    const urls = tale.value.illustrations.map((i: { url: any }) => i.url)
-
-    pages.push(tale.value.title)
-    const tmpBody = tale.value.body.slice()
-
-    illustrationIndexes.split(',').forEach((index, i) => {
-      tmpBody.splice(parseInt(index, 10), 0, urls[i]!)
-    })
-    pages.push(...tmpBody)
+    pages.value = createPages(tale.value)
   },
   { immediate: true }
 )
