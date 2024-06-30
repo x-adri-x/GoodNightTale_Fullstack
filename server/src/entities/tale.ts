@@ -19,7 +19,7 @@ export class Tale {
   @Column('integer')
   userId: number
 
-  @ManyToOne(() => User, (user) => user.tales)
+  @ManyToOne(() => User, (user) => user.tales, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User
 
@@ -51,7 +51,7 @@ export class Tale {
   isSaved: boolean | null
 
   @OneToMany(() => Illustration, (illustration) => illustration.tale, {
-    cascade: ['insert', 'update', 'remove'],
+    cascade: true,
   })
   illustrations: Illustration[]
 }

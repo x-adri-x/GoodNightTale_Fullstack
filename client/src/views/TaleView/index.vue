@@ -21,11 +21,13 @@ const taleStore = useTaleStore()
 const pages = ref()
 const errorMessage = ref()
 const isSaved = ref()
-const taleId = computed(() => (route.query.id ? route.query.id : taleStore.id))
+const taleId = computed(() =>
+  parseInt(route.query.id as string, 10) ? route.query.id : taleStore.id
+)
 
 if (!taleStore.generationInProgress) {
   const getTale = handleError(trpc.tale.get.query, errorMessage)
-  const tale = await getTale(parseInt(taleId.value as string, 10))
+  const tale = await getTale(taleId.value)
   isSaved.value = tale.isSaved
   const illustrationsData = tale.illustrations.map((i: { id: any; createdAt: any }) => ({
     id: i.id,
@@ -73,7 +75,7 @@ watch(
 
 const saveTale = async () => {
   const safeUpdate = handleError(trpc.tale.update.mutate, errorMessage)
-  await safeUpdate({ taleId: parseInt(taleId.value as string, 10), isSaved: true })
+  await safeUpdate({ taleId: taleId.value, isSaved: true })
   isSaved.value = true
 }
 

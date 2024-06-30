@@ -46,6 +46,15 @@ const favorite = async (id: number) => {
   await trpc.tale.update.mutate({ taleId: id, isFavorite: true })
   isFavorite.value = true
 }
+
+const remove = async (id: number) => {
+  try {
+    await trpc.tale.remove.mutate(id)
+    router.push({ name: 'StoryBook' })
+  } catch (error) {
+    errorMessage.value = 'Something went wrong while removing your tale from your story book'
+  }
+}
 </script>
 <template>
   <div class="main" v-if="tale">
@@ -68,6 +77,7 @@ const favorite = async (id: number) => {
         text="Mark as Favorite"
         @click="() => favorite(tale.id)"
       />
+      <ButtonPrimary class="btn" text="Delete" @click="() => remove(tale.id)" />
     </div>
   </div>
 </template>

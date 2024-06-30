@@ -18,7 +18,7 @@ export class Illustration {
   @Column('integer')
   taleId: number
 
-  @ManyToOne(() => Tale, (tale) => tale.illustrations)
+  @ManyToOne(() => Tale, (tale) => tale.illustrations, { onDelete: 'CASCADE' })
   @JoinColumn()
   tale: Tale
 

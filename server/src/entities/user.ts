@@ -21,9 +21,7 @@ export class User {
   @Column('text', { select: false })
   password: string
 
-  @OneToMany(() => Tale, (tale) => tale.user, {
-    cascade: ['insert'],
-  })
+  @OneToMany(() => Tale, (tale) => tale.user, { cascade: true })
   tales: Tale[]
 }
 
