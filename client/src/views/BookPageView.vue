@@ -18,15 +18,13 @@ const isFavorite: Ref<boolean> = ref(false)
 const pages: Ref<string[]> = ref([])
 
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)
-const illustrations = (await getIllustrations({ taleId })).filter((i: { isTemp: any }) => !i.isTemp)
-illustrations
-  .filter((i: { isTemp: any }) => !i.isTemp)
-  .forEach(async (i: { createdAt: string; id: number }) => {
-    if (!checkIllustrationExpiration(i.createdAt)) {
-      const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
-      await safeIllustrationDownload(i.id)
-    }
-  })
+const illustrations = await getIllustrations({ taleId })
+illustrations.forEach(async (i: { createdAt: string; id: number }) => {
+  if (!checkIllustrationExpiration(i.createdAt)) {
+    const safeIllustrationDownload = handleError(trpc.illustration.download.query, errorMessage)
+    await safeIllustrationDownload(i.id)
+  }
+})
 
 illustrationsRef.value = illustrations
 

@@ -29,12 +29,10 @@ try {
   router.push({ name: 'Not Found' })
 }
 
-const illustrationsData = taleIllustrations
-  ?.filter((i) => !i.isTemp)
-  .map((i: { id: any; createdAt: any }) => ({
-    id: i.id,
-    createdAt: i.createdAt,
-  }))
+const illustrationsData = taleIllustrations?.map((i: { id: any; createdAt: any }) => ({
+  id: i.id,
+  createdAt: i.createdAt,
+}))
 
 illustrationsData?.map(async (data: { createdAt: string; id: any }) => {
   if (!checkIllustrationExpiration(data.createdAt)) {

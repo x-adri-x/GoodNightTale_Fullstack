@@ -16,7 +16,7 @@ export default taleIdOwnerProcedure
   .query(async ({ input, ctx: { repos } }) => {
     const { taleId } = input
     const illustrations = (await repos.Illustration.find({
-      where: { taleId },
+      where: { taleId, isTemp: false },
     })) as IllustrationBare[]
 
     return illustrations
