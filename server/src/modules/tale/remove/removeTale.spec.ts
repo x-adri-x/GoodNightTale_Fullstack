@@ -10,11 +10,9 @@ it('deletes a tale from the database', async () => {
   const { remove, find } = createCaller(authContext({ db }, user))
 
   // When (ACT)
-  const deleted = await remove(tale.id)
-  console.log(deleted)
+  await remove(tale.id)
   const tales = await find()
   const deletedTale = tales.filter((t) => t.id === tale.id)
-  console.log(deletedTale)
   // Then (ASSERT)
   expect(deletedTale).toHaveLength(0)
 })

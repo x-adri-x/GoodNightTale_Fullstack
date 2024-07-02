@@ -18,7 +18,6 @@ const taleRef: Ref<Tale | undefined> = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
 const isLoading: Ref<boolean> = ref(false)
-const btnText: Ref<string> = ref('')
 const editInProgress: Ref<boolean> = ref(false)
 const editedIllustrationId = ref()
 const router = useRouter()
@@ -72,7 +71,6 @@ const generateNewIllustration = async (id: number, i: number) => {
     createdAt: new Date(),
     isTemp: true,
   }
-  console.log(illustrations.value)
 
   const created = await trpc.illustration.create.mutate(illustration)
 
@@ -114,14 +112,22 @@ const updateIllustration = async (id: number) => {
   })
 
   isLoading.value = false
-  discardChanges()
+  prompt.value = ['', '']
+  editedIllustrationId.value = ''
 }
 
-const discardChanges = () => {
+const discardChanges = async (id: number) => {
+  const taleIllustrations = await trpc.illustration.find.query({ taleId })
+  const originalIllustration = taleIllustrations.filter(
+    (i) => i.id === editedIllustrationId.value
+  )[0]
+  const index = illustrations.value.findIndex((obj: { id: number }) => obj.id === id)
+  if (index !== -1) {
+    illustrations.value[index] = originalIllustration
+  }
   editInProgress.value = false
-  const refs = [btnText, editedIllustrationId]
   prompt.value = ['', '']
-  refs.forEach((ref) => (ref.value = ''))
+  editedIllustrationId.value = ''
 }
 </script>
 <template>
@@ -170,13 +176,21 @@ const discardChanges = () => {
           ></v-skeleton-loader>
           <div v-else>
             <img :src="illustration.url" width="100%" :alt="illustration.prompt" />
-            <ButtonPrimary
-              v-if="editInProgress"
-              class="btn"
-              text="Save illustration"
-              :isDisabled="prompt[i].length < 20"
-              @click="() => updateIllustration(illustration.id)"
-            />
+            <div v-if="editInProgress">
+              <ButtonPrimary
+                class="btn"
+                text="Save illustration"
+                :isDisabled="prompt[i].length < 20"
+                @click="() => updateIllustration(illustration.id)"
+              />
+              <ButtonPrimary
+                class="btn"
+                text="Discard changes"
+                :isDisabled="prompt[i].length < 20"
+                @click="() => discardChanges(illustration.id)"
+              />
+            </div>
+
             <ButtonPrimary
               v-else
               class="btn"
@@ -184,15 +198,6 @@ const discardChanges = () => {
               :isDisabled="prompt[i].length < 20"
               @click="() => generateNewIllustration(illustration.id, i)"
             />
-
-            <ButtonPrimary
-              v-if="editInProgress"
-              class="btn"
-              text="Discard changes"
-              :isDisabled="prompt.length < 20"
-              @click="discardChanges"
-            />
-            <div></div>
           </div>
 
           <v-divider></v-divider>

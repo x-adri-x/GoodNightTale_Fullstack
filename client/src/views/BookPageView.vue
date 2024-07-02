@@ -14,7 +14,7 @@ const tale = ref()
 const illustrationsRef = ref()
 const route = useRoute()
 const taleId = parseInt(route.params.id as string, 10)
-const isFavorite = ref(false)
+const isFavorite: Ref<boolean> = ref(false)
 const pages: Ref<string[]> = ref([])
 
 const getIllustrations = handleError(trpc.illustration.find.query, errorMessage)

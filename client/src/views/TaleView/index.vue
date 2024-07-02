@@ -22,7 +22,7 @@ const pages = ref()
 const errorMessage = ref()
 const isSaved = ref()
 const taleId = computed(() =>
-  parseInt(route.query.id as string, 10) ? route.query.id : taleStore.id
+  parseInt(route.query.id as string, 10) ? parseInt(route.query.id as string, 10) : taleStore.id
 )
 
 if (!taleStore.generationInProgress) {
